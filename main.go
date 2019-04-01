@@ -1,7 +1,15 @@
 package main
 
-import "github.com/phiros/mite-go/cmd"
+import (
+	"github.com/spf13/viper"
+)
+
+const configFileName = ".mite-go.toml"
+const configPath = "$HOME"
 
 func main() {
-	cmd.Execute()
+	viper.AddConfigPath(configPath)
+	viper.SetConfigName(".mite-go")
+	viper.SetConfigType("toml")
+	cmdLineHandler()
 }

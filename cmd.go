@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"fmt"
@@ -15,10 +15,9 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute() {
+func cmdLineHandler() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 }
-
