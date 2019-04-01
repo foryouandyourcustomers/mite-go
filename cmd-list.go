@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"github.com/cheynewallace/tabby"
 	"github.com/spf13/cobra"
 )
 
 func init() {
 	listCommand.AddCommand(listProjectsCommand)
+	listCommand.AddCommand(listServicesCommand)
 	rootCmd.AddCommand(listCommand)
 }
 
@@ -22,9 +23,28 @@ var listProjectsCommand = &cobra.Command{
 	Use:   "projects",
 	Short: "list projects",
 	Run: func(cmd *cobra.Command, args []string) {
-		url := configGetApiUrl()
-		key := configGetApiKey()
-		// do get request
-		fmt.Println(url, key)
+		projects := apiGetProjects()
+		t := tabby.New()
+		t.AddHeader("id", "name", "notes")
+		for _, project := range projects {
+			p := project.ProjectBody
+			t.AddLine(p.Id, p.Name, p.Note)
+		}
+		t.Print()
+	},
+}
+
+var listServicesCommand = &cobra.Command{
+	Use:   "services",
+	Short: "list services",
+	Run: func(cmd *cobra.Command, args []string) {
+		services := apiGetServices()
+		t := tabby.New()
+		t.AddHeader("id", "name", "notes")
+		for _, project := range services {
+			s := project.ServiceBody
+			t.AddLine(s.Id, s.Name, s.Note)
+		}
+		t.Print()
 	},
 }

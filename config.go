@@ -9,11 +9,11 @@ import (
 )
 
 func configGetApiUrl() string {
-	configGet("api.url")
+	return configGet("api.url")
 }
 
 func configGetApiKey() string {
-	configGet("api.key")
+	return configGet("api.key")
 }
 
 func configGet(key string) string {
