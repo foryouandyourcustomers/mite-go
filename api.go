@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 )
 
 type Project struct {
@@ -19,6 +20,18 @@ type GenericBody struct {
 
 type Service struct {
 	ServiceBody GenericBody `json:"service"`
+}
+
+type TimeEntry struct {
+	TimeEntryBody TimeEntryBody `json:"time_entry"`
+}
+
+type TimeEntryBody struct {
+	GenericBody
+	Minutes     int    `json:"minutes"`
+	Date        string `json:"date_at"`
+	ProjectName string `json:"project_name"`
+	ServiceName string `json:"service_name"`
 }
 
 func apiGetProjects() (projects []Project) {
@@ -44,6 +57,7 @@ func buildGetRequest(path string) *http.Request {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 	}
 	req.Header.Add("X-MiteApiKey", configGetApiKey())
+	req.Header.Add("User-Agent", "mite-go/0.1 (+github.com/phiros/mite-go)")
 
 	return req
 }
@@ -62,4 +76,24 @@ func apiGetServices() (services []Service) {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 	}
 	return services
+}
+
+func apiGetEntries() (timeEntries []TimeEntry) {
+	client := &http.Client{}
+
+	toDate := time.Now().Format("2006-01-02")
+	fromDate := time.Now().AddDate(0, 0, -7).Format("2006-01-02")
+	requestPathAndParams := fmt.Sprintf("/time_entries.json?from=%s&to=%s", fromDate, toDate)
+	req := buildGetRequest(requestPathAndParams)
+	res, err := client.Do(req)
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+	}
+
+	defer res.Body.Close()
+	err = json.NewDecoder(res.Body).Decode(&timeEntries)
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+	}
+	return timeEntries
 }
