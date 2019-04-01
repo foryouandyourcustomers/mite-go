@@ -2,12 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
-	"path/filepath"
-	"reflect"
 	"strings"
 )
 
@@ -20,7 +17,7 @@ var configCommand = &cobra.Command{
 	Short: "sets or reads a config property",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			printFullConfig()
+			configPrintAll()
 			return
 		}
 
@@ -36,36 +33,9 @@ var configCommand = &cobra.Command{
 			configKeyValue := strings.Split(firstArgument, "=")
 			configKey := configKeyValue[0]
 			configValue := configKeyValue[1]
-			viper.Set(configKey, configValue)
-			dir, err := homedir.Dir()
-			if err != nil {
-				_, _ = fmt.Fprintln(os.Stderr, err)
-			}
-			err = viper.MergeInConfig()
-			if err != nil {
-				_, _ = fmt.Fprintln(os.Stderr, err)
-			}
-			err = viper.WriteConfigAs(filepath.Join(dir, configFileName))
-			if err != nil {
-				_, _ = fmt.Fprintln(os.Stderr, err)
-			}
+			configSet(configKey, configValue)
 			return
 		}
-		configValue := viper.Get(configKey)
-		switch v := configValue.(type) {
-		case string:
-			fmt.Println(v)
-		default:
-			_, _ = fmt.Fprintf(os.Stderr, "unknown type %v\n", reflect.TypeOf(v))
-		}
+		fmt.Println(configGet(configKey))
 	},
-}
-
-func printFullConfig() {
-	err := viper.ReadInConfig()
-	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-	}
-	c := viper.AllSettings()
-	fmt.Printf("%v\n", c)
 }
