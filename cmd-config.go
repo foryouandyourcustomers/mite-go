@@ -27,6 +27,10 @@ var configCommand = &cobra.Command{
 		firstArgument := args[0]
 		configKey := firstArgument
 		containsEquals := strings.Index(firstArgument, "=") > 0
+		err := viper.ReadInConfig()
+		if err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+		}
 		if containsEquals {
 			// write to config
 			configKeyValue := strings.Split(firstArgument, "=")
@@ -37,15 +41,15 @@ var configCommand = &cobra.Command{
 			if err != nil {
 				_, _ = fmt.Fprintln(os.Stderr, err)
 			}
+			err = viper.MergeInConfig()
+			if err != nil {
+				_, _ = fmt.Fprintln(os.Stderr, err)
+			}
 			err = viper.WriteConfigAs(filepath.Join(dir, configFileName))
 			if err != nil {
 				_, _ = fmt.Fprintln(os.Stderr, err)
 			}
 			return
-		}
-		err := viper.ReadInConfig()
-		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
 		}
 		configValue := viper.Get(configKey)
 		switch v := configValue.(type) {
