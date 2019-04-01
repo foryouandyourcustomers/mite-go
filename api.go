@@ -83,7 +83,7 @@ func apiGetEntries() (timeEntries []TimeEntry) {
 
 	toDate := time.Now().Format("2006-01-02")
 	fromDate := time.Now().AddDate(0, 0, -7).Format("2006-01-02")
-	requestPathAndParams := fmt.Sprintf("/time_entries.json?from=%s&to=%s", fromDate, toDate)
+	requestPathAndParams := fmt.Sprintf("/time_entries.json?from=%s&to=%s&direction=asc", fromDate, toDate)
 	req := buildGetRequest(requestPathAndParams)
 	res, err := client.Do(req)
 	if err != nil {
