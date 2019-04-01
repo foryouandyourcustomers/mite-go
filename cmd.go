@@ -11,7 +11,7 @@ var rootCmd = &cobra.Command{
 	Use:   "mite-go",
 	Short: "cli client for mite time tracking",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
+		// list entries for last 7 days
 	},
 }
 

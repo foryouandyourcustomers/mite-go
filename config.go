@@ -8,6 +8,14 @@ import (
 	"path/filepath"
 )
 
+func configGetApiUrl() string {
+	configGet("api.url")
+}
+
+func configGetApiKey() string {
+	configGet("api.key")
+}
+
 func configGet(key string) string {
 	err := viper.ReadInConfig()
 	if err != nil {
