@@ -27,6 +27,7 @@ var listProjectsCommand = &cobra.Command{
 		projects, err := api.Projects()
 		if err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, err)
+			return
 		}
 
 		t := tabby.New()

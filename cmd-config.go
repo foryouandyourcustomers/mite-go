@@ -27,9 +27,10 @@ var configCommand = &cobra.Command{
 		err := viper.ReadInConfig()
 		if err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, err)
+			return
 		}
 		if containsEquals {
-			// write to config
+			// write listTo config
 			configKeyValue := strings.Split(firstArgument, "=")
 			configKey := configKeyValue[0]
 			configValue := configKeyValue[1]
