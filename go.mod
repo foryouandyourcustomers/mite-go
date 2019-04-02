@@ -1,4 +1,4 @@
-module github.com/phiros/mite-go
+module github.com/leanovate/mite-go
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
