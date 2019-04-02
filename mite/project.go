@@ -1,9 +1,7 @@
 package mite
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 )
 
 type Project struct {
@@ -12,22 +10,9 @@ type Project struct {
 	Note string
 }
 
-func (a *defaultApi) Projects() ([]Project, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", a.url, "projects.json"), nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("X-MiteApiKey", a.key)
-	req.Header.Add("User-Agent", userAgent)
-
-	res, err := a.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = res.Body.Close() }()
-
+func (a *miteApi) Projects() ([]Project, error) {
 	prs := []ProjectResponse{}
-	err = json.NewDecoder(res.Body).Decode(&prs)
+	err := a.get("projects.json", &prs)
 	if err != nil {
 		return nil, err
 	}

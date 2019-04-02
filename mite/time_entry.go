@@ -1,9 +1,7 @@
 package mite
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"time"
 )
@@ -30,7 +28,7 @@ type TimeEntryParameters struct {
 	Direction *Direction
 }
 
-func (a *defaultApi) TimeEntries(params *TimeEntryParameters) ([]TimeEntry, error) {
+func (a *miteApi) TimeEntries(params *TimeEntryParameters) ([]TimeEntry, error) {
 	values := url.Values{}
 	if params != nil {
 		if params.From != nil {
@@ -49,27 +47,8 @@ func (a *defaultApi) TimeEntries(params *TimeEntryParameters) ([]TimeEntry, erro
 		}
 	}
 
-	u, err := url.Parse(fmt.Sprintf("%s/%s", a.url, "time_entries.json"))
-	if err != nil {
-		return nil, err
-	}
-	u.RawQuery = values.Encode()
-
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("X-MiteApiKey", a.key)
-	req.Header.Add("User-Agent", userAgent)
-
-	res, err := a.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = res.Body.Close() }()
-
 	ter := []TimeEntryResponse{}
-	err = json.NewDecoder(res.Body).Decode(&ter)
+	err := a.getParametrized("time_entries.json", values, &ter)
 	if err != nil {
 		return nil, err
 	}
