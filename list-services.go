@@ -27,6 +27,7 @@ var listServicesCommand = &cobra.Command{
 		services, err := api.Services()
 		if err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, err)
+			return
 		}
 
 		t := tabby.New()
