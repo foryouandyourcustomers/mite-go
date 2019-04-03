@@ -11,18 +11,31 @@ import (
 )
 
 var (
-	listTo    string
-	listFrom  string
-	listOrder string
+	listTo         string
+	listFrom       string
+	listOrder      string
+	createDate     string
+	createDuration time.Duration
+	createNote     string
 )
 
 func init() {
-	defaultTo := time.Now()
-	defaultFrom := defaultTo.AddDate(0, 0, -7)
-	entriesListCommand.Flags().StringVarP(&listTo, "to", "t", defaultTo.Format("2006-01-02"), "list only entries until date (in YYYY-MM-DD format)")
+	now := time.Now()
+	defaultFrom := now.AddDate(0, 0, -7)
+	defaultDuration, err := time.ParseDuration("0m")
+	if err != nil {
+		panic(err)
+	}
+	// list
+	entriesListCommand.Flags().StringVarP(&listTo, "to", "t", now.Format("2006-01-02"), "list only entries until date (in YYYY-MM-DD format)")
 	entriesListCommand.Flags().StringVarP(&listFrom, "from", "f", defaultFrom.Format("2006-01-02"), "list only entries starting at date (in YYYY-MM-DD format)")
 	entriesListCommand.Flags().StringVarP(&listOrder, "order", "o", "asc", "list only entries starting at date (in YYYY-MM-DD format)")
 	entriesCommand.AddCommand(entriesListCommand)
+	// flags for create
+	entriesCreateCommand.Flags().StringVarP(&createDate, "date", "D", now.Format("2006-01-02"), "day for which to create entry (in YYYY-MM-DD format)")
+	entriesCreateCommand.Flags().DurationVarP(&createDuration, "duration", "d", defaultDuration, "duration of entry (format examples: '1h15m' or '300m' or '6h')")
+	entriesCreateCommand.Flags().StringVarP(&createNote, "note", "n", "", "a note describing what was worked on")
+	entriesCommand.AddCommand(entriesCreateCommand)
 	rootCmd.AddCommand(entriesCommand)
 }
 
@@ -68,5 +81,13 @@ var entriesListCommand = &cobra.Command{
 			t.AddLine(entry.Id, shortenedNotes, entry.Date, entry.Duration.String(), shortenedProjectService)
 		}
 		t.Print()
+	},
+}
+
+var entriesCreateCommand = &cobra.Command{
+	Use:   "create",
+	Short: "create time entries",
+	Run: func(cmd *cobra.Command, args []string) {
+
 	},
 }
