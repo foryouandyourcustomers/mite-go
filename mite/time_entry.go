@@ -21,7 +21,34 @@ type TimeEntryParameters struct {
 	Direction string
 }
 
-func (a *miteApi) TimeEntries(params *TimeEntryParameters) ([]TimeEntry, error) {
+type timeEntryResponse struct {
+	TimeEntry struct {
+		Id          int    `json:"id"`
+		Note        string `json:"note"`
+		Minutes     int    `json:"minutes"`
+		Date        string `json:"date_at"`
+		ProjectName string `json:"project_name"`
+		ServiceName string `json:"service_name"`
+	} `json:"time_entry"`
+}
+
+func (r *timeEntryResponse) ToTimeEntry() *TimeEntry {
+	date, err := time.Parse(layout, r.TimeEntry.Date)
+	if err != nil {
+		panic(err)
+	}
+
+	return &TimeEntry{
+		Id:          fmt.Sprintf("%d", r.TimeEntry.Id),
+		Note:        r.TimeEntry.Note,
+		Duration:    time.Duration(r.TimeEntry.Minutes) * time.Minute,
+		Date:        date,
+		ProjectName: r.TimeEntry.ProjectName,
+		ServiceName: r.TimeEntry.ServiceName,
+	}
+}
+
+func (a *miteApi) TimeEntries(params *TimeEntryParameters) ([]*TimeEntry, error) {
 	values := url.Values{}
 	if params != nil {
 		if params.From != nil {
@@ -35,13 +62,13 @@ func (a *miteApi) TimeEntries(params *TimeEntryParameters) ([]TimeEntry, error) 
 		}
 	}
 
-	ter := []TimeEntryResponse{}
+	ter := []timeEntryResponse{}
 	err := a.getParametrized("time_entries.json", values, &ter)
 	if err != nil {
 		return nil, err
 	}
 
-	timeEntries := []TimeEntry{}
+	timeEntries := []*TimeEntry{}
 	for _, te := range ter {
 		timeEntries = append(timeEntries, te.ToTimeEntry())
 	}
@@ -49,29 +76,12 @@ func (a *miteApi) TimeEntries(params *TimeEntryParameters) ([]TimeEntry, error) 
 	return timeEntries, nil
 }
 
-type TimeEntryResponse struct {
-	TimeEntry struct {
-		Id          int    `json:"id"`
-		Note        string `json:"note"`
-		Minutes     int    `json:"minutes"`
-		Date        string `json:"date_at"`
-		ProjectName string `json:"project_name"`
-		ServiceName string `json:"service_name"`
-	} `json:"time_entry"`
-}
-
-func (r TimeEntryResponse) ToTimeEntry() TimeEntry {
-	date, err := time.Parse(layout, r.TimeEntry.Date)
+func (a *miteApi) TimeEntry(id string) (*TimeEntry, error) {
+	ter := timeEntryResponse{}
+	err := a.get(fmt.Sprintf("/time_entries/%s.json", id), &ter)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return TimeEntry{
-		Id:          fmt.Sprintf("%d", r.TimeEntry.Id),
-		Note:        r.TimeEntry.Note,
-		Duration:    time.Duration(r.TimeEntry.Minutes) * time.Minute,
-		Date:        date,
-		ProjectName: r.TimeEntry.ProjectName,
-		ServiceName: r.TimeEntry.ServiceName,
-	}
+	return ter.ToTimeEntry(), nil
 }

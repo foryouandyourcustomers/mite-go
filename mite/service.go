@@ -10,22 +10,7 @@ type Service struct {
 	Note string
 }
 
-func (a *miteApi) Services() ([]Service, error) {
-	srs := []ServiceResponse{}
-	err := a.get("services.json", &srs)
-	if err != nil {
-		return nil, err
-	}
-
-	services := []Service{}
-	for _, sr := range srs {
-		services = append(services, sr.ToService())
-	}
-
-	return services, nil
-}
-
-type ServiceResponse struct {
+type serviceResponse struct {
 	Service struct {
 		Id   int    `json:"id"`
 		Name string `json:"name"`
@@ -33,10 +18,25 @@ type ServiceResponse struct {
 	} `json:"service"`
 }
 
-func (r ServiceResponse) ToService() Service {
-	return Service{
+func (r *serviceResponse) ToService() *Service {
+	return &Service{
 		Id:   fmt.Sprintf("%d", r.Service.Id),
 		Name: r.Service.Name,
 		Note: r.Service.Note,
 	}
+}
+
+func (a *miteApi) Services() ([]*Service, error) {
+	srs := []serviceResponse{}
+	err := a.get("services.json", &srs)
+	if err != nil {
+		return nil, err
+	}
+
+	services := []*Service{}
+	for _, sr := range srs {
+		services = append(services, sr.ToService())
+	}
+
+	return services, nil
 }

@@ -10,22 +10,7 @@ type Project struct {
 	Note string
 }
 
-func (a *miteApi) Projects() ([]Project, error) {
-	prs := []ProjectResponse{}
-	err := a.get("projects.json", &prs)
-	if err != nil {
-		return nil, err
-	}
-
-	projects := []Project{}
-	for _, pr := range prs {
-		projects = append(projects, pr.ToProject())
-	}
-
-	return projects, nil
-}
-
-type ProjectResponse struct {
+type projectResponse struct {
 	Project struct {
 		Id   int    `json:"id"`
 		Name string `json:"name"`
@@ -33,10 +18,25 @@ type ProjectResponse struct {
 	} `json:"project"`
 }
 
-func (r ProjectResponse) ToProject() Project {
-	return Project{
+func (r *projectResponse) ToProject() *Project {
+	return &Project{
 		Id:   fmt.Sprintf("%d", r.Project.Id),
 		Name: r.Project.Name,
 		Note: r.Project.Note,
 	}
+}
+
+func (a *miteApi) Projects() ([]*Project, error) {
+	prs := []projectResponse{}
+	err := a.get("projects.json", &prs)
+	if err != nil {
+		return nil, err
+	}
+
+	projects := []*Project{}
+	for _, pr := range prs {
+		projects = append(projects, pr.ToProject())
+	}
+
+	return projects, nil
 }
