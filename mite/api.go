@@ -45,6 +45,9 @@ func (a *miteApi) get(resource string, result interface{}) error {
 	}
 
 	defer func() { _ = res.Body.Close() }()
+	if err := a.check(res); err != nil {
+		return err
+	}
 
 	return json.NewDecoder(res.Body).Decode(result)
 }
@@ -77,6 +80,9 @@ func (a *miteApi) post(resource string, body interface{}, result interface{}) er
 	}
 
 	defer func() { _ = res.Body.Close() }()
+	if err := a.check(res); err != nil {
+		return err
+	}
 
 	return json.NewDecoder(res.Body).Decode(result)
 }
@@ -96,10 +102,16 @@ func (a *miteApi) patch(resource string, body interface{}) error {
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := a.client.Do(req)
+	if err != nil {
+		return err
+	}
 
 	defer func() { _ = res.Body.Close() }()
+	if err := a.check(res); err != nil {
+		return err
+	}
 
-	return err
+	return nil
 }
 
 func (a *miteApi) delete(resource string) error {
@@ -111,8 +123,30 @@ func (a *miteApi) delete(resource string) error {
 	req.Header.Add("User-Agent", userAgent)
 
 	res, err := a.client.Do(req)
+	if err != nil {
+		return err
+	}
 
 	defer func() { _ = res.Body.Close() }()
+	if err := a.check(res); err != nil {
+		return err
+	}
 
-	return err
+	return nil
+}
+
+func (a *miteApi) check(res *http.Response) error {
+	if res.StatusCode < 400 {
+		return nil
+	}
+
+	msg := struct {
+		Error string `json:"error"`
+	}{}
+	err := json.NewDecoder(res.Body).Decode(&msg)
+	if err != nil {
+		return fmt.Errorf("failed to %s %s", res.Request.Method, res.Request.RequestURI)
+	}
+
+	return fmt.Errorf("failed to %s %s: %s", res.Request.Method, res.Request.RequestURI, msg.Error)
 }
