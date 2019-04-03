@@ -12,7 +12,7 @@ const userAgent = "mite-go/0.1 (+github.com/leanovate/mite-go)"
 const layout = "2006-01-02"
 
 type MiteApi interface {
-	TimeEntries(params *TimeEntryParameters) ([]*TimeEntry, error)
+	TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error)
 	TimeEntry(id string) (*TimeEntry, error)
 	CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
 	Projects() ([]*Project, error)

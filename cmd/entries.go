@@ -49,7 +49,7 @@ var entriesListCommand = &cobra.Command{
 			return
 		}
 
-		entries, err := deps.miteApi.TimeEntries(&mite.TimeEntryParameters{
+		entries, err := deps.miteApi.TimeEntries(&mite.TimeEntryQuery{
 			To:        &to,
 			From:      &from,
 			Direction: direction,
