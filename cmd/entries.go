@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ var entriesListCommand = &cobra.Command{
 	Use:   "list",
 	Short: "list time entries",
 	Run: func(cmd *cobra.Command, args []string) {
-		api := mite.NewMiteApi(configGetApiUrl(), configGetApiKey())
+		api := mite.NewMiteApi(deps.conf.GetApiUrl(), deps.conf.GetApiKey())
 
 		direction := listOrder
 

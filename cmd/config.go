@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ var configCommand = &cobra.Command{
 	Short: "sets or reads a config property",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			configPrintAll()
+			deps.conf.PrintAll()
 			return
 		}
 
@@ -34,9 +34,9 @@ var configCommand = &cobra.Command{
 			configKeyValue := strings.Split(firstArgument, "=")
 			configKey := configKeyValue[0]
 			configValue := configKeyValue[1]
-			configSet(configKey, configValue)
+			deps.conf.Set(configKey, configValue)
 			return
 		}
-		fmt.Println(configGet(configKey))
+		fmt.Println(deps.conf.Get(configKey))
 	},
 }

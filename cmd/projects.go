@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ var listProjectsCommand = &cobra.Command{
 	Use:   "list",
 	Short: "list projects",
 	Run: func(cmd *cobra.Command, args []string) {
-		api := mite.NewMiteApi(configGetApiUrl(), configGetApiKey())
+		api := mite.NewMiteApi(deps.conf.GetApiUrl(), deps.conf.GetApiKey())
 		projects, err := api.Projects()
 		if err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, err)
