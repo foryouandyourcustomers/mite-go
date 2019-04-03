@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
-	"path/filepath"
 )
 
 type Config interface {
@@ -16,16 +15,18 @@ type Config interface {
 }
 
 type config struct {
-	fileName string
-	filePath string
-	fileType string
+	fileName     string
+	filePath     string
+	fileType     string
+	fileFullPath string
 }
 
 func NewConfig(fileName, filePath, fileType string) Config {
 	viper.AddConfigPath("$HOME")
 	viper.SetConfigName(fileName)
 	viper.SetConfigType(fileType)
-	return &config{fileName: fileName, filePath: filePath, fileType: fileType}
+	ffp := fmt.Sprintf("%s/%s.%s", filePath, fileName, fileType)
+	return &config{fileName: fileName, filePath: filePath, fileType: fileType, fileFullPath: ffp}
 }
 
 func (c *config) GetApiUrl() string {
@@ -55,7 +56,7 @@ func (c *config) Set(key string, value string) {
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 	}
-	err = viper.WriteConfigAs(filepath.Join(c.filePath, c.fileName))
+	err = viper.WriteConfigAs(c.fileFullPath)
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 	}
