@@ -48,7 +48,7 @@ func init() {
 	entriesCreateCommand.Flags().StringVarP(&createServiceId, "serviceid", "s", "", "service id for time entry (HINT: use the 'service' sub-command to find the id)")
 	entriesCommand.AddCommand(entriesCreateCommand)
 	// edit
-	entriesEditCommand.Flags().StringVarP(&editDate, "date", "D", now.Format("2006-01-02"), "day for which to edit entry (in YYYY-MM-DD format)")
+	entriesEditCommand.Flags().StringVarP(&editDate, "date", "D", today.String(), "day for which to edit entry (in YYYY-MM-DD format)")
 	entriesEditCommand.Flags().StringVarP(&editDuration, "duration", "d", "", "duration of entry (format examples: '1h15m' or '300m' or '6h')")
 	entriesEditCommand.Flags().StringVarP(&editNote, "note", "n", "", "a note describing what was worked on")
 	entriesEditCommand.Flags().StringVarP(&editTimeEntryId, "id", "i", "", "the time entry id to edit")
@@ -165,7 +165,7 @@ var entriesEditCommand = &cobra.Command{
 
 		// override only fields affected by set parameters of edit
 		if editDate != "" {
-			eDate, err := time.Parse("2006-01-02", editDate)
+			eDate, err := date.Parse(editDate)
 			if err != nil {
 				return err
 			}
