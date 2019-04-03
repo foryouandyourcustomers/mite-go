@@ -139,3 +139,7 @@ func (a *miteApi) CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
 
 	return ter.ToTimeEntry(), nil
 }
+
+func (a *miteApi) EditTimeEntry(id string, command *TimeEntryCommand) error {
+	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), command.toRequest())
+}
