@@ -8,7 +8,6 @@ import (
 	"net/url"
 )
 
-const layout = "2006-01-02"
 const contentType = "application/json"
 const userAgent = "mite-go/0.1 (+github.com/leanovate/mite-go)"
 

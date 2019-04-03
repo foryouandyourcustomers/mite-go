@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cheynewallace/tabby"
+	"github.com/leanovate/mite-go/date"
 	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
 	"strings"
@@ -22,19 +23,19 @@ var (
 )
 
 func init() {
-	now := time.Now()
-	defaultFrom := now.AddDate(0, 0, -7)
+	today := date.Today()
+	defaultFrom := today.Add(0, 0, -7)
 	defaultDuration, err := time.ParseDuration("0m")
 	if err != nil {
 		panic(err)
 	}
 	// list
-	entriesListCommand.Flags().StringVarP(&listTo, "to", "t", now.Format("2006-01-02"), "list only entries until date (in YYYY-MM-DD format)")
-	entriesListCommand.Flags().StringVarP(&listFrom, "from", "f", defaultFrom.Format("2006-01-02"), "list only entries starting at date (in YYYY-MM-DD format)")
+	entriesListCommand.Flags().StringVarP(&listTo, "to", "t", today.String(), "list only entries until date (in YYYY-MM-DD format)")
+	entriesListCommand.Flags().StringVarP(&listFrom, "from", "f", defaultFrom.String(), "list only entries starting at date (in YYYY-MM-DD format)")
 	entriesListCommand.Flags().StringVarP(&listOrder, "order", "o", "asc", "list only entries starting at date (in YYYY-MM-DD format)")
 	entriesCommand.AddCommand(entriesListCommand)
 	// create
-	entriesCreateCommand.Flags().StringVarP(&createDate, "date", "D", now.Format("2006-01-02"), "day for which to create entry (in YYYY-MM-DD format)")
+	entriesCreateCommand.Flags().StringVarP(&createDate, "date", "D", today.String(), "day for which to create entry (in YYYY-MM-DD format)")
 	entriesCreateCommand.Flags().DurationVarP(&createDuration, "duration", "d", defaultDuration, "duration of entry (format examples: '1h15m' or '300m' or '6h')")
 	entriesCreateCommand.Flags().StringVarP(&createNote, "note", "n", "", "a note describing what was worked on")
 	entriesCreateCommand.Flags().StringVarP(&createProjectId, "projectid", "p", "", "project id for time entry (HINT: use the 'project' sub-command to find the id)")
@@ -55,11 +56,11 @@ var entriesListCommand = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		direction := listOrder
 
-		to, err := time.Parse("2006-01-02", listTo)
+		to, err := date.Parse(listTo)
 		if err != nil {
 			return err
 		}
-		from, err := time.Parse("2006-01-02", listFrom)
+		from, err := date.Parse(listFrom)
 		if err != nil {
 			return err
 		}
@@ -107,7 +108,7 @@ var entriesCreateCommand = &cobra.Command{
 			return errors.New("please set both the project AND service id (either via arguments or config)")
 		}
 
-		cDate, err := time.Parse("2006-01-02", createDate)
+		cDate, err := date.Parse(createDate)
 		if err != nil {
 			return err
 		}
