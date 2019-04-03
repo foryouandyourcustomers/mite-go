@@ -143,3 +143,7 @@ func (a *miteApi) CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
 func (a *miteApi) EditTimeEntry(id string, command *TimeEntryCommand) error {
 	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), command.toRequest())
 }
+
+func (a *miteApi) DeleteTimeEntry(id string) error {
+	return a.delete(fmt.Sprintf("/time_entries/%s.json", id))
+}

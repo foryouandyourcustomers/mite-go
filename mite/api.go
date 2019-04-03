@@ -16,6 +16,7 @@ type MiteApi interface {
 	TimeEntry(id string) (*TimeEntry, error)
 	CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
 	EditTimeEntry(id string, command *TimeEntryCommand) error
+	DeleteTimeEntry(id string) error
 	Projects() ([]*Project, error)
 	Services() ([]*Service, error)
 }
@@ -93,6 +94,21 @@ func (a *miteApi) patch(resource string, body interface{}) error {
 	req.Header.Add("X-MiteApiKey", a.key)
 	req.Header.Add("User-Agent", userAgent)
 	req.Header.Add("Content-Type", "application/json")
+
+	res, err := a.client.Do(req)
+
+	defer func() { _ = res.Body.Close() }()
+
+	return err
+}
+
+func (a *miteApi) delete(resource string) error {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s", a.url, resource), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Add("X-MiteApiKey", a.key)
+	req.Header.Add("User-Agent", userAgent)
 
 	res, err := a.client.Do(req)
 
