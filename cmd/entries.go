@@ -80,12 +80,13 @@ var entriesListCommand = &cobra.Command{
 
 func printEntries(entries []*mite.TimeEntry) {
 	t := tabby.New()
-	t.AddHeader("id", "notes", "date", "time", "project,service")
+	t.AddHeader("id", "notes", "date", "time", "project", "service")
 	for _, entry := range entries {
 		trimmedNotes := strings.Replace(entry.Note, "\r\n", ",", -1)
 		shortenedNotes := fmt.Sprintf("%.50s", trimmedNotes)
-		shortenedProjectService := fmt.Sprintf("%.50s", entry.ProjectName+","+entry.ServiceName)
-		t.AddLine(entry.Id, shortenedNotes, entry.Date, entry.Duration.String(), shortenedProjectService)
+		shortenedProject := fmt.Sprintf("%.25s", entry.ProjectName)
+		shortenedService := fmt.Sprintf("%.25s", entry.ServiceName)
+		t.AddLine(entry.Id, shortenedNotes, entry.Date, entry.Duration.String(), shortenedProject, shortenedService)
 	}
 	t.Print()
 }
