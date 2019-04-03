@@ -19,6 +19,12 @@ var (
 	createNote      string
 	createProjectId string
 	createServiceId string
+	editTimeEntryId string
+	editDate        string
+	editDuration    string
+	editNote        string
+	editProjectId   string
+	editServiceId   string
 )
 
 func init() {
@@ -40,6 +46,14 @@ func init() {
 	entriesCreateCommand.Flags().StringVarP(&createProjectId, "projectid", "p", "", "project id for time entry (HINT: use the 'project' sub-command to find the id)")
 	entriesCreateCommand.Flags().StringVarP(&createServiceId, "serviceid", "s", "", "service id for time entry (HINT: use the 'service' sub-command to find the id)")
 	entriesCommand.AddCommand(entriesCreateCommand)
+	// edit
+	entriesEditCommand.Flags().StringVarP(&editDate, "date", "D", now.Format("2006-01-02"), "day for which to edit entry (in YYYY-MM-DD format)")
+	entriesEditCommand.Flags().StringVarP(&editDuration, "duration", "d", "", "duration of entry (format examples: '1h15m' or '300m' or '6h')")
+	entriesEditCommand.Flags().StringVarP(&editNote, "note", "n", "", "a note describing what was worked on")
+	entriesEditCommand.Flags().StringVarP(&editTimeEntryId, "id", "i", "", "the time entry id to edit")
+	entriesEditCommand.Flags().StringVarP(&editProjectId, "projectid", "p", "", "project id for time entry (HINT: use the 'project' sub-command to find the id)")
+	entriesEditCommand.Flags().StringVarP(&editServiceId, "serviceid", "s", "", "service id for time entry (HINT: use the 'service' sub-command to find the id)")
+	entriesCommand.AddCommand(entriesEditCommand)
 	rootCmd.AddCommand(entriesCommand)
 }
 
@@ -93,7 +107,7 @@ func printEntries(entries []*mite.TimeEntry) {
 
 var entriesCreateCommand = &cobra.Command{
 	Use:   "create",
-	Short: "create time entries",
+	Short: "creates a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if createProjectId == "" {
 			createProjectId = deps.conf.Get("projectId")
@@ -121,6 +135,68 @@ var entriesCreateCommand = &cobra.Command{
 		}
 
 		entry, err := deps.miteApi.CreateTimeEntry(&timeEntry)
+		if err != nil {
+			return err
+		}
+
+		printEntries([]*mite.TimeEntry{entry})
+		return nil
+	},
+}
+
+var entriesEditCommand = &cobra.Command{
+	Use:   "edit",
+	Short: "edits a time entry",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		entry, err := deps.miteApi.TimeEntry(editTimeEntryId)
+		if err != nil {
+			return err
+		}
+
+		// use retrieved values as defaults
+		timeEntry := mite.TimeEntryCommand{
+			Date:      &entry.Date,
+			Duration:  &entry.Duration,
+			Note:      entry.Note,
+			ProjectId: entry.ProjectId,
+			ServiceId: entry.ServiceId,
+		}
+
+		// override only fields affected by set parameters of edit
+		if editDate != "" {
+			eDate, err := time.Parse("2006-01-02", editDate)
+			if err != nil {
+				return err
+			}
+			timeEntry.Date = &eDate
+		}
+
+		if editDuration != "" {
+			eDuration, err := time.ParseDuration(editDuration)
+			if err != nil {
+				return err
+			}
+			timeEntry.Duration = &eDuration
+		}
+
+		if editNote != "" {
+			timeEntry.Note = editNote
+		}
+
+		if editProjectId != "" {
+			timeEntry.ProjectId = editProjectId
+		}
+
+		if editServiceId != "" {
+			timeEntry.ServiceId = editServiceId
+		}
+
+		err = deps.miteApi.EditTimeEntry(editTimeEntryId, &timeEntry)
+		if err != nil {
+			return err
+		}
+
+		entry, err = deps.miteApi.TimeEntry(editTimeEntryId)
 		if err != nil {
 			return err
 		}

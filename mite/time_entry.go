@@ -12,7 +12,9 @@ type TimeEntry struct {
 	Note        string
 	Duration    time.Duration
 	Date        time.Time
+	ProjectId   string
 	ProjectName string
+	ServiceId   string
 	ServiceName string
 }
 
@@ -84,7 +86,9 @@ type timeEntryResponse struct {
 		Note        string `json:"note"`
 		Minutes     int    `json:"minutes"`
 		Date        string `json:"date_at"`
+		ProjectId   int    `json:"project_id"`
 		ProjectName string `json:"project_name"`
+		ServiceId   int    `json:"service_id"`
 		ServiceName string `json:"service_name"`
 	} `json:"time_entry"`
 }
@@ -100,7 +104,9 @@ func (r *timeEntryResponse) ToTimeEntry() *TimeEntry {
 		Note:        r.TimeEntry.Note,
 		Duration:    time.Duration(r.TimeEntry.Minutes) * time.Minute,
 		Date:        date,
+		ProjectId:   fmt.Sprintf("%d", r.TimeEntry.ProjectId),
 		ProjectName: r.TimeEntry.ProjectName,
+		ServiceId:   fmt.Sprintf("%d", r.TimeEntry.ServiceId),
 		ServiceName: r.TimeEntry.ServiceName,
 	}
 }
