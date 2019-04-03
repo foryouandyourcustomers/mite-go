@@ -1,6 +1,7 @@
 package mite
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,6 +14,7 @@ const layout = "2006-01-02"
 type MiteApi interface {
 	TimeEntries(params *TimeEntryParameters) ([]*TimeEntry, error)
 	TimeEntry(id string) (*TimeEntry, error)
+	CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
 	Projects() ([]*Project, error)
 	Services() ([]*Service, error)
 }
@@ -51,4 +53,28 @@ func (a *miteApi) getParametrized(resource string, values url.Values, result int
 	u.RawQuery = values.Encode()
 
 	return a.get(u.String(), result)
+}
+
+func (a *miteApi) post(resource string, body interface{}, result interface{}) error {
+	b, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", a.url, resource), bytes.NewBuffer(b))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("X-MiteApiKey", a.key)
+	req.Header.Add("User-Agent", userAgent)
+	req.Header.Add("Content-Type", "application/json")
+
+	res, err := a.client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer func() { _ = res.Body.Close() }()
+
+	return json.NewDecoder(res.Body).Decode(result)
 }
