@@ -45,11 +45,27 @@ func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
 	return r
 }
 
-// TODO: rename to TimeEntryQuery
-type TimeEntryParameters struct {
+type TimeEntryQuery struct {
 	From      *time.Time
 	To        *time.Time
 	Direction string
+}
+
+func (q *TimeEntryQuery) toValues() url.Values {
+	v := url.Values{}
+	if q != nil {
+		if q.From != nil {
+			v.Add("from", q.From.Format(layout))
+		}
+		if q.To != nil {
+			v.Add("to", q.To.Format(layout))
+		}
+		if q.Direction != "" {
+			v.Add("direction", q.Direction)
+		}
+	}
+
+	return v
 }
 
 type timeEntryRequest struct {
@@ -89,22 +105,9 @@ func (r *timeEntryResponse) ToTimeEntry() *TimeEntry {
 	}
 }
 
-func (a *miteApi) TimeEntries(params *TimeEntryParameters) ([]*TimeEntry, error) {
-	values := url.Values{}
-	if params != nil {
-		if params.From != nil {
-			values.Add("from", params.From.Format(layout))
-		}
-		if params.To != nil {
-			values.Add("to", params.To.Format(layout))
-		}
-		if params.Direction != "" {
-			values.Add("direction", params.Direction)
-		}
-	}
-
+func (a *miteApi) TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error) {
 	ter := []timeEntryResponse{}
-	err := a.getParametrized("time_entries.json", values, &ter)
+	err := a.getParametrized("time_entries.json", query.toValues(), &ter)
 	if err != nil {
 		return nil, err
 	}
@@ -135,4 +138,12 @@ func (a *miteApi) CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
 	}
 
 	return ter.ToTimeEntry(), nil
+}
+
+func (a *miteApi) EditTimeEntry(id string, command *TimeEntryCommand) error {
+	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), command.toRequest())
+}
+
+func (a *miteApi) DeleteTimeEntry(id string) error {
+	return a.delete(fmt.Sprintf("/time_entries/%s.json", id))
 }
