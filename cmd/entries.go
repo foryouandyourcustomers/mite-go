@@ -12,20 +12,21 @@ import (
 )
 
 var (
-	listTo          string
-	listFrom        string
-	listOrder       string
-	createDate      string
-	createDuration  time.Duration
-	createNote      string
-	createProjectId string
-	createServiceId string
-	editTimeEntryId string
-	editDate        string
-	editDuration    string
-	editNote        string
-	editProjectId   string
-	editServiceId   string
+	listTo            string
+	listFrom          string
+	listOrder         string
+	createDate        string
+	createDuration    time.Duration
+	createNote        string
+	createProjectId   string
+	createServiceId   string
+	editTimeEntryId   string
+	editDate          string
+	editDuration      string
+	editNote          string
+	editProjectId     string
+	editServiceId     string
+	deleteTimeEntryId string
 )
 
 func init() {
@@ -55,6 +56,9 @@ func init() {
 	entriesEditCommand.Flags().StringVarP(&editProjectId, "projectid", "p", "", "project id for time entry (HINT: use the 'project' sub-command to find the id)")
 	entriesEditCommand.Flags().StringVarP(&editServiceId, "serviceid", "s", "", "service id for time entry (HINT: use the 'service' sub-command to find the id)")
 	entriesCommand.AddCommand(entriesEditCommand)
+	// delete
+	entriesDeleteCommand.Flags().StringVarP(&deleteTimeEntryId, "id", "i", "", "the time entry id to delete")
+	entriesCommand.AddCommand(entriesDeleteCommand)
 	rootCmd.AddCommand(entriesCommand)
 }
 
@@ -204,5 +208,13 @@ var entriesEditCommand = &cobra.Command{
 
 		printEntries([]*mite.TimeEntry{entry})
 		return nil
+	},
+}
+
+var entriesDeleteCommand = &cobra.Command{
+	Use:   "delete",
+	Short: "deletes a time entry",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return deps.miteApi.DeleteTimeEntry(deleteTimeEntryId)
 	},
 }
