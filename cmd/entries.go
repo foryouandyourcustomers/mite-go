@@ -36,8 +36,6 @@ var entriesListCommand = &cobra.Command{
 	Use:   "list",
 	Short: "list time entries",
 	Run: func(cmd *cobra.Command, args []string) {
-		api := mite.NewMiteApi(deps.conf.GetApiUrl(), deps.conf.GetApiKey())
-
 		direction := listOrder
 
 		to, err := time.Parse("2006-01-02", listTo)
@@ -51,7 +49,7 @@ var entriesListCommand = &cobra.Command{
 			return
 		}
 
-		entries, err := api.TimeEntries(&mite.TimeEntryParameters{
+		entries, err := deps.miteApi.TimeEntries(&mite.TimeEntryParameters{
 			To:        &to,
 			From:      &from,
 			Direction: direction,

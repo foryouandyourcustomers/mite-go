@@ -2,17 +2,19 @@ package cmd
 
 import (
 	"github.com/leanovate/mite-go/config"
+	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
 )
 
 type dependencies struct {
-	conf config.Config
+	conf    config.Config
+	miteApi mite.MiteApi
 }
 
 var deps dependencies
 
-func HandleCommands(c config.Config) error {
-	deps = dependencies{conf: c}
+func HandleCommands(c config.Config, m mite.MiteApi) error {
+	deps = dependencies{conf: c, miteApi: m}
 	return rootCmd.Execute()
 }
 

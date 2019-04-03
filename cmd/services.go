@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/cheynewallace/tabby"
-	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -23,8 +22,7 @@ var listServicesCommand = &cobra.Command{
 	Use:   "list",
 	Short: "list services",
 	Run: func(cmd *cobra.Command, args []string) {
-		api := mite.NewMiteApi(deps.conf.GetApiUrl(), deps.conf.GetApiKey())
-		services, err := api.Services()
+		services, err := deps.miteApi.Services()
 		if err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, err)
 			return

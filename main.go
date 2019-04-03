@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/leanovate/mite-go/cmd"
 	"github.com/leanovate/mite-go/config"
+	"github.com/leanovate/mite-go/mite"
 	"github.com/mitchellh/go-homedir"
 	"os"
 )
@@ -17,8 +18,9 @@ func main() {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 	}
 	c := config.NewConfig(configFileName, homeDirectory, configType)
+	api := mite.NewMiteApi(c.GetApiUrl(), c.GetApiKey())
 
-	err = cmd.HandleCommands(c)
+	err = cmd.HandleCommands(c, api)
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
