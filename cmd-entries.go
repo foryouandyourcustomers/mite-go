@@ -38,7 +38,7 @@ var entriesListCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		api := mite.NewMiteApi(configGetApiUrl(), configGetApiKey())
 
-		direction := mite.DirectionAsc
+		direction := listOrder
 
 		to, err := time.Parse("2006-01-02", listTo)
 		if err != nil {
@@ -54,7 +54,7 @@ var entriesListCommand = &cobra.Command{
 		entries, err := api.TimeEntries(&mite.TimeEntryParameters{
 			To:        &to,
 			From:      &from,
-			Direction: &direction,
+			Direction: direction,
 		})
 		if err != nil {
 			_, _ = fmt.Fprintln(os.Stderr, err)
@@ -65,9 +65,9 @@ var entriesListCommand = &cobra.Command{
 		t.AddHeader("id", "notes", "date", "time", "project,service")
 		for _, entry := range entries {
 			trimmedNotes := strings.Replace(entry.Note, "\r\n", ",", -1)
-			shortendNotes := fmt.Sprintf("%.50s", trimmedNotes)
+			shortenedNotes := fmt.Sprintf("%.50s", trimmedNotes)
 			shortenedProjectService := fmt.Sprintf("%.50s", entry.ProjectName+","+entry.ServiceName)
-			t.AddLine(entry.Id, shortendNotes, entry.Date, entry.Duration.String(), shortenedProjectService)
+			t.AddLine(entry.Id, shortenedNotes, entry.Date, entry.Duration.String(), shortenedProjectService)
 		}
 		t.Print()
 	},

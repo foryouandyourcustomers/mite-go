@@ -15,17 +15,10 @@ type TimeEntry struct {
 	ServiceName string
 }
 
-type Direction int
-
-const (
-	DirectionAsc  = Direction(0)
-	DirectionDesc = Direction(1)
-)
-
 type TimeEntryParameters struct {
 	From      *time.Time
 	To        *time.Time
-	Direction *Direction
+	Direction string
 }
 
 func (a *miteApi) TimeEntries(params *TimeEntryParameters) ([]TimeEntry, error) {
@@ -37,13 +30,8 @@ func (a *miteApi) TimeEntries(params *TimeEntryParameters) ([]TimeEntry, error) 
 		if params.To != nil {
 			values.Add("to", params.To.Format(layout))
 		}
-		if params.Direction != nil {
-			switch *params.Direction {
-			case DirectionAsc:
-				values.Add("direction", "asc")
-			case DirectionDesc:
-				values.Add("direction", "desc")
-			}
+		if params.Direction != "" {
+			values.Add("direction", params.Direction)
 		}
 	}
 
