@@ -2,6 +2,7 @@ package mite
 
 import (
 	"fmt"
+	"github.com/leanovate/mite-go/date"
 	"math"
 	"net/url"
 	"time"
@@ -10,8 +11,8 @@ import (
 type TimeEntry struct {
 	Id          string
 	Note        string
+	Date        date.Date
 	Duration    time.Duration
-	Date        time.Time
 	ProjectId   string
 	ProjectName string
 	ServiceId   string
@@ -19,7 +20,7 @@ type TimeEntry struct {
 }
 
 type TimeEntryCommand struct {
-	Date      *time.Time
+	Date      *date.Date
 	Duration  *time.Duration
 	Note      string
 	ProjectId string
@@ -29,7 +30,7 @@ type TimeEntryCommand struct {
 func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
 	r := &timeEntryRequest{}
 	if c.Date != nil {
-		r.TimeEntry.Date = c.Date.Format(layout)
+		r.TimeEntry.Date = c.Date.String()
 	}
 	if c.Duration != nil {
 		r.TimeEntry.Minutes = int(math.Floor(math.Round(c.Duration.Minutes()))) // BOGUS
@@ -48,8 +49,8 @@ func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
 }
 
 type TimeEntryQuery struct {
-	From      *time.Time
-	To        *time.Time
+	From      *date.Date
+	To        *date.Date
 	Direction string
 }
 
@@ -57,10 +58,10 @@ func (q *TimeEntryQuery) toValues() url.Values {
 	v := url.Values{}
 	if q != nil {
 		if q.From != nil {
-			v.Add("from", q.From.Format(layout))
+			v.Add("from", q.From.String())
 		}
 		if q.To != nil {
-			v.Add("to", q.To.Format(layout))
+			v.Add("to", q.To.String())
 		}
 		if q.Direction != "" {
 			v.Add("direction", q.Direction)
@@ -94,7 +95,7 @@ type timeEntryResponse struct {
 }
 
 func (r *timeEntryResponse) ToTimeEntry() *TimeEntry {
-	date, err := time.Parse(layout, r.TimeEntry.Date)
+	d, err := date.Parse(r.TimeEntry.Date)
 	if err != nil {
 		panic(err)
 	}
@@ -103,7 +104,7 @@ func (r *timeEntryResponse) ToTimeEntry() *TimeEntry {
 		Id:          fmt.Sprintf("%d", r.TimeEntry.Id),
 		Note:        r.TimeEntry.Note,
 		Duration:    time.Duration(r.TimeEntry.Minutes) * time.Minute,
-		Date:        date,
+		Date:        d,
 		ProjectId:   fmt.Sprintf("%d", r.TimeEntry.ProjectId),
 		ProjectName: r.TimeEntry.ProjectName,
 		ServiceId:   fmt.Sprintf("%d", r.TimeEntry.ServiceId),
