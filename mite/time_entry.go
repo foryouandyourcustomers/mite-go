@@ -49,6 +49,18 @@ func (a *miteApi) TimeEntries(params *TimeEntryParameters) ([]TimeEntry, error) 
 	return timeEntries, nil
 }
 
+func (a *miteApi) TimeEntry(id string) (*TimeEntry, error) {
+	ter := TimeEntryResponse{}
+	err := a.get(fmt.Sprintf("/time_entries/%s.json", id), &ter)
+	if err != nil {
+		return nil, err
+	}
+
+	te := ter.ToTimeEntry()
+
+	return &te, nil
+}
+
 type TimeEntryResponse struct {
 	TimeEntry struct {
 		Id          int    `json:"id"`

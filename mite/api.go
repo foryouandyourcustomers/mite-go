@@ -14,6 +14,7 @@ type MiteApi interface {
 	Projects() ([]Project, error)
 	Services() ([]Service, error)
 	TimeEntries(params *TimeEntryParameters) ([]TimeEntry, error)
+	TimeEntry(id string) (*TimeEntry, error)
 }
 
 type miteApi struct {
