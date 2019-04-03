@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"github.com/cheynewallace/tabby"
 	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
-	"os"
 	"strings"
 	"time"
 )
@@ -33,7 +33,7 @@ func init() {
 	entriesListCommand.Flags().StringVarP(&listFrom, "from", "f", defaultFrom.Format("2006-01-02"), "list only entries starting at date (in YYYY-MM-DD format)")
 	entriesListCommand.Flags().StringVarP(&listOrder, "order", "o", "asc", "list only entries starting at date (in YYYY-MM-DD format)")
 	entriesCommand.AddCommand(entriesListCommand)
-	// flags for create
+	// create
 	entriesCreateCommand.Flags().StringVarP(&createDate, "date", "D", now.Format("2006-01-02"), "day for which to create entry (in YYYY-MM-DD format)")
 	entriesCreateCommand.Flags().DurationVarP(&createDuration, "duration", "d", defaultDuration, "duration of entry (format examples: '1h15m' or '300m' or '6h')")
 	entriesCreateCommand.Flags().StringVarP(&createNote, "note", "n", "", "a note describing what was worked on")
@@ -46,24 +46,22 @@ func init() {
 var entriesCommand = &cobra.Command{
 	Use:   "entries",
 	Short: "lists & adds time entries",
-	Run:   entriesListCommand.Run,
+	RunE:  entriesListCommand.RunE,
 }
 
 var entriesListCommand = &cobra.Command{
 	Use:   "list",
 	Short: "list time entries",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		direction := listOrder
 
 		to, err := time.Parse("2006-01-02", listTo)
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
-			return
+			return err
 		}
 		from, err := time.Parse("2006-01-02", listFrom)
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
-			return
+			return err
 		}
 
 		entries, err := deps.miteApi.TimeEntries(&mite.TimeEntryQuery{
@@ -72,11 +70,11 @@ var entriesListCommand = &cobra.Command{
 			Direction: direction,
 		})
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
-			return
+			return err
 		}
 
 		printEntries(entries)
+		return nil
 	},
 }
 
@@ -95,7 +93,7 @@ func printEntries(entries []*mite.TimeEntry) {
 var entriesCreateCommand = &cobra.Command{
 	Use:   "create",
 	Short: "create time entries",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if createProjectId == "" {
 			createProjectId = deps.conf.Get("projectId")
 		}
@@ -105,14 +103,12 @@ var entriesCreateCommand = &cobra.Command{
 		}
 
 		if createProjectId == "" || createServiceId == "" {
-			_, _ = fmt.Fprintln(os.Stderr, "please set both the project AND service id (either via arguments or config)")
-			return
+			return errors.New("please set both the project AND service id (either via arguments or config)")
 		}
 
 		cDate, err := time.Parse("2006-01-02", createDate)
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
-			return
+			return err
 		}
 
 		timeEntry := mite.TimeEntryCommand{
@@ -125,10 +121,10 @@ var entriesCreateCommand = &cobra.Command{
 
 		entry, err := deps.miteApi.CreateTimeEntry(&timeEntry)
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
-			return
+			return err
 		}
 
 		printEntries([]*mite.TimeEntry{entry})
+		return nil
 	},
 }

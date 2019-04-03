@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
 	"strings"
 )
 
@@ -15,10 +14,10 @@ func init() {
 var configCommand = &cobra.Command{
 	Use:   "config",
 	Short: "sets or reads a config property",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			deps.conf.PrintAll()
-			return
+			return nil
 		}
 
 		firstArgument := args[0]
@@ -26,8 +25,7 @@ var configCommand = &cobra.Command{
 		containsEquals := strings.Index(firstArgument, "=") > 0
 		err := viper.ReadInConfig()
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
-			return
+			return err
 		}
 		if containsEquals {
 			// write listTo config
@@ -35,8 +33,9 @@ var configCommand = &cobra.Command{
 			configKey := configKeyValue[0]
 			configValue := configKeyValue[1]
 			deps.conf.Set(configKey, configValue)
-			return
+			return nil
 		}
 		fmt.Println(deps.conf.Get(configKey))
+		return nil
 	},
 }

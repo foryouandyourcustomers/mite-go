@@ -1,10 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/cheynewallace/tabby"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 func init() {
@@ -15,17 +13,16 @@ func init() {
 var projectsCommand = &cobra.Command{
 	Use:   "projects",
 	Short: "list & adds projects",
-	Run:   listProjectsCommand.Run,
+	RunE:  listProjectsCommand.RunE,
 }
 
 var listProjectsCommand = &cobra.Command{
 	Use:   "list",
 	Short: "list projects",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		projects, err := deps.miteApi.Projects()
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
-			return
+			return err
 		}
 
 		t := tabby.New()
@@ -34,5 +31,6 @@ var listProjectsCommand = &cobra.Command{
 			t.AddLine(project.Id, project.Name, project.Note)
 		}
 		t.Print()
+		return nil
 	},
 }
