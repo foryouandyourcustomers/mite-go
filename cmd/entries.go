@@ -96,8 +96,16 @@ var entriesCreateCommand = &cobra.Command{
 	Use:   "create",
 	Short: "create time entries",
 	Run: func(cmd *cobra.Command, args []string) {
+		if createProjectId == "" {
+			createProjectId = deps.conf.Get("projectId")
+		}
+
+		if createServiceId == "" {
+			createServiceId = deps.conf.Get("serviceId")
+		}
+
 		if createProjectId == "" || createServiceId == "" {
-			_, _ = fmt.Fprintln(os.Stderr, "please set both the project AND service id")
+			_, _ = fmt.Fprintln(os.Stderr, "please set both the project AND service id (either via arguments or config)")
 			return
 		}
 
