@@ -26,7 +26,7 @@ func (r *projectResponse) ToProject() *Project {
 	}
 }
 
-func (a *miteApi) Projects() ([]*Project, error) {
+func (a *api) Projects() ([]*Project, error) {
 	var prs []projectResponse
 	err := a.get("projects.json", &prs)
 	if err != nil {

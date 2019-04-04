@@ -112,7 +112,7 @@ func (r *timeEntryResponse) ToTimeEntry() *TimeEntry {
 	}
 }
 
-func (a *miteApi) TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error) {
+func (a *api) TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error) {
 	var ter []timeEntryResponse
 	err := a.getParametrized("time_entries.json", query.toValues(), &ter)
 	if err != nil {
@@ -127,7 +127,7 @@ func (a *miteApi) TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error) {
 	return timeEntries, nil
 }
 
-func (a *miteApi) TimeEntry(id string) (*TimeEntry, error) {
+func (a *api) TimeEntry(id string) (*TimeEntry, error) {
 	ter := timeEntryResponse{}
 	err := a.get(fmt.Sprintf("/time_entries/%s.json", id), &ter)
 	if err != nil {
@@ -137,7 +137,7 @@ func (a *miteApi) TimeEntry(id string) (*TimeEntry, error) {
 	return ter.ToTimeEntry(), nil
 }
 
-func (a *miteApi) CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error) {
+func (a *api) CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error) {
 	ter := timeEntryResponse{}
 	err := a.post("/time_entries.json", command.toRequest(), &ter)
 	if err != nil {
@@ -147,10 +147,10 @@ func (a *miteApi) CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
 	return ter.ToTimeEntry(), nil
 }
 
-func (a *miteApi) EditTimeEntry(id string, command *TimeEntryCommand) error {
+func (a *api) EditTimeEntry(id string, command *TimeEntryCommand) error {
 	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), command.toRequest())
 }
 
-func (a *miteApi) DeleteTimeEntry(id string) error {
+func (a *api) DeleteTimeEntry(id string) error {
 	return a.delete(fmt.Sprintf("/time_entries/%s.json", id))
 }

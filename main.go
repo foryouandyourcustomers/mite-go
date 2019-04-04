@@ -18,7 +18,7 @@ func main() {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 	}
 	c := config.NewConfig(configFileName, homeDirectory, configType)
-	api := mite.NewMiteApi(c.GetApiUrl(), c.GetApiKey())
+	api := mite.NewApi(c.GetApiUrl(), c.GetApiKey())
 
 	err = cmd.HandleCommands(c, api)
 	if err != nil {

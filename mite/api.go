@@ -11,27 +11,48 @@ import (
 const contentType = "application/json"
 const userAgent = "mite-go/0.1 (+github.com/leanovate/mite-go)"
 
-type Api interface {
+type AccountApi interface{}
+
+type TimeEntryApi interface {
 	TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error)
 	TimeEntry(id string) (*TimeEntry, error)
 	CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
 	EditTimeEntry(id string, command *TimeEntryCommand) error
 	DeleteTimeEntry(id string) error
+}
+
+type CustomerApi interface{}
+
+type ProjectApi interface {
 	Projects() ([]*Project, error)
+}
+
+type ServiceApi interface {
 	Services() ([]*Service, error)
 }
 
-type miteApi struct {
+type UserApi interface{}
+
+type Api interface {
+	AccountApi
+	TimeEntryApi
+	CustomerApi
+	ProjectApi
+	ServiceApi
+	UserApi
+}
+
+type api struct {
 	base   string
 	key    string
 	client *http.Client
 }
 
-func NewMiteApi(base string, key string) Api {
-	return &miteApi{base: base, key: key, client: &http.Client{}}
+func NewApi(base string, key string) Api {
+	return &api{base: base, key: key, client: &http.Client{}}
 }
 
-func (a *miteApi) get(resource string, result interface{}) error {
+func (a *api) get(resource string, result interface{}) error {
 	req, err := http.NewRequest(http.MethodGet, a.url(resource), nil)
 	if err != nil {
 		return err
@@ -53,7 +74,7 @@ func (a *miteApi) get(resource string, result interface{}) error {
 	return json.NewDecoder(res.Body).Decode(result)
 }
 
-func (a *miteApi) getParametrized(resource string, values url.Values, result interface{}) error {
+func (a *api) getParametrized(resource string, values url.Values, result interface{}) error {
 	u := &url.URL{}
 	u.Path = resource
 	u.RawQuery = values.Encode()
@@ -61,7 +82,7 @@ func (a *miteApi) getParametrized(resource string, values url.Values, result int
 	return a.get(u.String(), result)
 }
 
-func (a *miteApi) post(resource string, body interface{}, result interface{}) error {
+func (a *api) post(resource string, body interface{}, result interface{}) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -89,7 +110,7 @@ func (a *miteApi) post(resource string, body interface{}, result interface{}) er
 	return json.NewDecoder(res.Body).Decode(result)
 }
 
-func (a *miteApi) patch(resource string, body interface{}) error {
+func (a *api) patch(resource string, body interface{}) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -117,7 +138,7 @@ func (a *miteApi) patch(resource string, body interface{}) error {
 	return nil
 }
 
-func (a *miteApi) delete(resource string) error {
+func (a *api) delete(resource string) error {
 	req, err := http.NewRequest(http.MethodDelete, a.url(resource), nil)
 	if err != nil {
 		return err
@@ -139,11 +160,11 @@ func (a *miteApi) delete(resource string) error {
 	return nil
 }
 
-func (a *miteApi) url(resource string) string {
+func (a *api) url(resource string) string {
 	return fmt.Sprintf("%s/%s", a.base, resource)
 }
 
-func (a *miteApi) check(res *http.Response) error {
+func (a *api) check(res *http.Response) error {
 	if res.StatusCode < 400 {
 		return nil
 	}

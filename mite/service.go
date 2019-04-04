@@ -26,7 +26,7 @@ func (r *serviceResponse) ToService() *Service {
 	}
 }
 
-func (a *miteApi) Services() ([]*Service, error) {
+func (a *api) Services() ([]*Service, error) {
 	var srs []serviceResponse
 	err := a.get("services.json", &srs)
 	if err != nil {
