@@ -11,7 +11,7 @@ import (
 type TimeEntry struct {
 	Id          string
 	Note        string
-	Date        date.Date
+	Date        date.LocalDate
 	Duration    time.Duration
 	ProjectId   string
 	ProjectName string
@@ -20,7 +20,7 @@ type TimeEntry struct {
 }
 
 type TimeEntryCommand struct {
-	Date      *date.Date
+	Date      *date.LocalDate
 	Duration  *time.Duration
 	Note      string
 	ProjectId string
@@ -49,8 +49,8 @@ func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
 }
 
 type TimeEntryQuery struct {
-	From      *date.Date
-	To        *date.Date
+	From      *date.LocalDate
+	To        *date.LocalDate
 	Direction string
 }
 
