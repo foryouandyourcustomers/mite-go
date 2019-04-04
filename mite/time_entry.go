@@ -34,8 +34,10 @@ type TimeEntryCommand struct {
 	Date      *date.LocalDate
 	Duration  *time.Duration
 	Note      string
+	UserId    string
 	ProjectId string
 	ServiceId string
+	Locked    bool
 }
 
 func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
@@ -46,15 +48,11 @@ func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
 	if c.Duration != nil {
 		r.TimeEntry.Minutes = int(math.Floor(math.Round(c.Duration.Minutes()))) // BOGUS
 	}
-	if c.Note != "" {
-		r.TimeEntry.Note = c.Note
-	}
-	if c.ProjectId != "" {
-		r.TimeEntry.ProjectId = c.ProjectId
-	}
-	if c.ServiceId != "" {
-		r.TimeEntry.ServiceId = c.ServiceId
-	}
+	r.TimeEntry.Note = c.Note
+	r.TimeEntry.UserId = c.UserId
+	r.TimeEntry.ProjectId = c.ProjectId
+	r.TimeEntry.ServiceId = c.ServiceId
+	r.TimeEntry.Locked = c.Locked
 
 	return r
 }
@@ -84,11 +82,13 @@ func (q *TimeEntryQuery) toValues() url.Values {
 
 type timeEntryRequest struct {
 	TimeEntry struct {
-		Date      string `json:"date_at"`
-		Minutes   int    `json:"minutes"`
-		Note      string `json:"note"`
-		ProjectId string `json:"project_id"`
-		ServiceId string `json:"service_id"`
+		Date      string `json:"date_at,omitempty"`
+		Minutes   int    `json:"minutes,omitempty"`
+		Note      string `json:"note,omitempty"`
+		UserId    string `json:"user_id,omitempty"`
+		ProjectId string `json:"project_id,omitempty"`
+		ServiceId string `json:"service_id,omitempty"`
+		Locked    bool   `json:"locked,omitempty"`
 	} `json:"time_entry"`
 }
 
