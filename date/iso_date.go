@@ -9,15 +9,15 @@ type Date struct {
 }
 
 func Today() Date {
-	return From(time.Now())
+	return From(time.Now().Local())
 }
 
-func From(time time.Time) Date {
-	return Date{time: time}
+func From(t time.Time) Date {
+	return Date{time: t}
 }
 
-func Parse(date string) (Date, error) {
-	t, err := time.Parse(ISO8601, date)
+func Parse(s string) (Date, error) {
+	t, err := time.ParseInLocation(ISO8601, s, time.Local)
 	if err != nil {
 		return Date{}, err
 	}
