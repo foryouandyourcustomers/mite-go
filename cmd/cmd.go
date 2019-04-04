@@ -8,12 +8,12 @@ import (
 
 type dependencies struct {
 	conf    config.Config
-	miteApi mite.MiteApi
+	miteApi mite.Api
 }
 
 var deps dependencies
 
-func HandleCommands(c config.Config, m mite.MiteApi) error {
+func HandleCommands(c config.Config, m mite.Api) error {
 	deps = dependencies{conf: c, miteApi: m}
 	return rootCmd.Execute()
 }

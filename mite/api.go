@@ -11,7 +11,7 @@ import (
 const contentType = "application/json"
 const userAgent = "mite-go/0.1 (+github.com/leanovate/mite-go)"
 
-type MiteApi interface {
+type Api interface {
 	TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error)
 	TimeEntry(id string) (*TimeEntry, error)
 	CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
@@ -27,7 +27,7 @@ type miteApi struct {
 	client *http.Client
 }
 
-func NewMiteApi(base string, key string) MiteApi {
+func NewMiteApi(base string, key string) Api {
 	return &miteApi{base: base, key: key, client: &http.Client{}}
 }
 
