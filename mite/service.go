@@ -27,13 +27,13 @@ func (r *serviceResponse) ToService() *Service {
 }
 
 func (a *miteApi) Services() ([]*Service, error) {
-	srs := []serviceResponse{}
+	var srs []serviceResponse
 	err := a.get("services.json", &srs)
 	if err != nil {
 		return nil, err
 	}
 
-	services := []*Service{}
+	var services []*Service
 	for _, sr := range srs {
 		services = append(services, sr.ToService())
 	}

@@ -27,13 +27,13 @@ func (r *projectResponse) ToProject() *Project {
 }
 
 func (a *miteApi) Projects() ([]*Project, error) {
-	prs := []projectResponse{}
+	var prs []projectResponse
 	err := a.get("projects.json", &prs)
 	if err != nil {
 		return nil, err
 	}
 
-	projects := []*Project{}
+	var projects []*Project
 	for _, pr := range prs {
 		projects = append(projects, pr.ToProject())
 	}

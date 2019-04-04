@@ -113,13 +113,13 @@ func (r *timeEntryResponse) ToTimeEntry() *TimeEntry {
 }
 
 func (a *miteApi) TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error) {
-	ter := []timeEntryResponse{}
+	var ter []timeEntryResponse
 	err := a.getParametrized("time_entries.json", query.toValues(), &ter)
 	if err != nil {
 		return nil, err
 	}
 
-	timeEntries := []*TimeEntry{}
+	var timeEntries []*TimeEntry
 	for _, te := range ter {
 		timeEntries = append(timeEntries, te.ToTimeEntry())
 	}
