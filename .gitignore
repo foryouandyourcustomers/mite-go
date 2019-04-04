@@ -1,4 +1,5 @@
 mite-go
+dist
 
 *.iml
 .idea
