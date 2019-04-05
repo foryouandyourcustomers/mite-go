@@ -19,6 +19,8 @@ $PATH (or %PATH% on windows).
 
 Supported sub-commands:
 
+| command  | functionality                                     |
+|----------|---------------------------------------------------|
 | config   | sets or reads a config property                   |
 | entries  | lists & adds time entries                         |
 | help     | Help about any command                            |
