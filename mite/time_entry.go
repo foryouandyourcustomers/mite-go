@@ -116,7 +116,7 @@ type timeEntryResponse struct {
 }
 
 func (r *timeEntryResponse) toTimeEntry() *TimeEntry {
-	d, err := date.Parse(r.TimeEntry.Date)
+	d, err := date.ParseLocalDate(r.TimeEntry.Date)
 	if err != nil {
 		panic(err)
 	}

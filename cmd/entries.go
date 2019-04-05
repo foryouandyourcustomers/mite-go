@@ -78,11 +78,11 @@ var entriesListCommand = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		direction := listOrder
 
-		to, err := date.Parse(listTo)
+		to, err := date.ParseLocalDate(listTo)
 		if err != nil {
 			return err
 		}
-		from, err := date.Parse(listFrom)
+		from, err := date.ParseLocalDate(listFrom)
 		if err != nil {
 			return err
 		}
@@ -124,7 +124,7 @@ var entriesCreateCommand = &cobra.Command{
 			return errors.New("please set both the project AND service id (either via arguments or config)")
 		}
 
-		cDate, err := date.Parse(createDate)
+		cDate, err := date.ParseLocalDate(createDate)
 		if err != nil {
 			return err
 		}
@@ -189,7 +189,7 @@ var entriesEditCommand = &cobra.Command{
 
 		// override only fields affected by set parameters of edit
 		if editDate != "" {
-			eDate, err := date.Parse(editDate)
+			eDate, err := date.ParseLocalDate(editDate)
 			if err != nil {
 				return err
 			}

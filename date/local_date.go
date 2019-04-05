@@ -8,21 +8,21 @@ type LocalDate struct {
 	time time.Time
 }
 
-func Today() LocalDate {
-	return From(time.Now().Local())
-}
-
-func From(t time.Time) LocalDate {
+func NewLocalDate(t time.Time) LocalDate {
 	return LocalDate{time: t}
 }
 
-func Parse(s string) (LocalDate, error) {
+func Today() LocalDate {
+	return NewLocalDate(time.Now().Local())
+}
+
+func ParseLocalDate(s string) (LocalDate, error) {
 	t, err := time.ParseInLocation(ISO8601, s, time.Local)
 	if err != nil {
 		return LocalDate{}, err
 	}
 
-	return From(t), nil
+	return NewLocalDate(t), nil
 }
 
 func (d LocalDate) Add(years int, months int, days int) LocalDate {
