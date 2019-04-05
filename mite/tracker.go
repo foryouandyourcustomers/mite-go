@@ -1,7 +1,7 @@
 package mite
 
 import (
-	"math"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -17,49 +17,69 @@ type StoppedTimeEntry struct {
 	Duration time.Duration
 }
 
-type Tracker struct {
-	Tracking TrackingTimeEntry
-	Stopped  StoppedTimeEntry
-}
-
-type TrackerCommand struct {
-	Id       string
-	Duration time.Duration
-	Since    time.Time
-}
-
-func (c *TrackerCommand) toRequest() *trackerRequest {
-	i, err := strconv.Atoi(c.Id)
-	if err != nil {
-		panic(err)
-	}
-
-	r := &trackerRequest{}
-	r.Tracker.TrackingTimeEntry.Id = i
-	r.Tracker.TrackingTimeEntry.Minutes = int(math.Floor(math.Round(c.Duration.Minutes()))) // BOGUS
-	r.Tracker.TrackingTimeEntry.Since = c.Since
-
-	return r
-}
-
-type trackerRequest struct {
+type trackerResponse struct {
 	Tracker struct {
-		TrackingTimeEntry struct {
+		TrackingTimeEntry *struct {
 			Id      int       `json:"id"`
 			Minutes int       `json:"minutes"`
 			Since   time.Time `json:"since"`
 		} `json:"tracking_time_entry"`
+		StoppedTimeEntry *struct {
+			Id      int `json:"id"`
+			Minutes int `json:"minutes"`
+		} `json:"stopped_time_entry"`
 	} `json:"tracker"`
 }
 
-func (a *api) Tracker() (*Tracker, error) {
-	return &Tracker{}, nil
+func (r *trackerResponse) toTrackingTimeEntry() *TrackingTimeEntry {
+	if r.Tracker.TrackingTimeEntry == nil {
+		return nil
+	}
+
+	return &TrackingTimeEntry{
+		Id:       strconv.Itoa(r.Tracker.TrackingTimeEntry.Id),
+		Duration: time.Duration(r.Tracker.TrackingTimeEntry.Minutes) * time.Minute,
+		Since:    r.Tracker.TrackingTimeEntry.Since,
+	}
 }
 
-func (a *api) StartTracker(command TrackerCommand) (*Tracker, error) {
-	return &Tracker{}, nil
+func (r *trackerResponse) toStoppedTimeEntry() *StoppedTimeEntry {
+	if r.Tracker.StoppedTimeEntry == nil {
+		return nil
+	}
+
+	return &StoppedTimeEntry{
+		Id:       strconv.Itoa(r.Tracker.StoppedTimeEntry.Id),
+		Duration: time.Duration(r.Tracker.StoppedTimeEntry.Minutes) * time.Minute,
+	}
 }
 
-func (a *api) StopTracker(id string) (*Tracker, error) {
-	return &Tracker{}, nil
+func (a *api) Tracker() (*TrackingTimeEntry, error) {
+	tr := trackerResponse{}
+	err := a.get("/tracker.json", &tr)
+	if err != nil {
+		return nil, err
+	}
+
+	return tr.toTrackingTimeEntry(), nil
+}
+
+func (a *api) StartTracker(id string) (*TrackingTimeEntry, *StoppedTimeEntry, error) {
+	tr := &trackerResponse{}
+	err := a.patch(fmt.Sprintf("/tracker/%s.json", id), nil, tr)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return tr.toTrackingTimeEntry(), tr.toStoppedTimeEntry(), nil
+}
+
+func (a *api) StopTracker(id string) (*StoppedTimeEntry, error) {
+	tr := &trackerResponse{}
+	err := a.delete(fmt.Sprintf("/tracker/%s.json", id), tr)
+	if err != nil {
+		return nil, err
+	}
+
+	return tr.toStoppedTimeEntry(), nil
 }

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
+	"github.com/cheynewallace/tabby"
 	"github.com/leanovate/mite-go/date"
 	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
@@ -31,7 +31,19 @@ var trackerStatusCommand = &cobra.Command{
 	Use:   "status",
 	Short: "shows the status of the time tracker",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		panic("implement trackerStatusCommand")
+		tracking, err := deps.miteApi.Tracker()
+		if err != nil {
+			return err
+		}
+		if tracking == nil {
+			return nil
+		}
+
+		t := tabby.New()
+		t.AddHeader("id", "time", "state", "since")
+		t.AddLine(tracking.Id, tracking.Duration, "tracking", tracking.Since)
+		t.Print()
+
 		return nil
 	},
 }
@@ -46,8 +58,45 @@ var trackerStartCommand = &cobra.Command{
 				return err
 			}
 		}
-		fmt.Printf("passed id: %s\n", trackerTimeEntryId)
-		panic("implement trackerStartCommand")
+
+		tracking, stopped, err := deps.miteApi.StartTracker(trackerTimeEntryId)
+		if err != nil {
+			return err
+		}
+
+		t := tabby.New()
+		t.AddHeader("id", "time", "state", "since")
+		t.AddLine(tracking.Id, tracking.Duration, "tracking", tracking.Since)
+		if stopped != nil {
+			t.AddLine(stopped.Id, stopped.Duration, "stopped")
+		}
+		t.Print()
+
+		return nil
+	},
+}
+
+var trackerStopCommand = &cobra.Command{
+	Use:   "stop",
+	Short: "stops the time tracker for a time entry",
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		if trackerTimeEntryId == "" {
+			trackerTimeEntryId, err = fetchLatestTimeEntryForToday()
+			if err != nil {
+				return err
+			}
+		}
+
+		stopped, err := deps.miteApi.StopTracker(trackerTimeEntryId)
+		if err != nil {
+			return err
+		}
+
+		t := tabby.New()
+		t.AddHeader("id", "time", "state")
+		t.AddLine(stopped.Id, stopped.Duration, "stopped")
+		t.Print()
+
 		return nil
 	},
 }
@@ -69,20 +118,4 @@ func fetchLatestTimeEntryForToday() (string, error) {
 	}
 
 	return entries[0].Id, nil
-}
-
-var trackerStopCommand = &cobra.Command{
-	Use:   "stop",
-	Short: "stops the time tracker for a time entry",
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		if trackerTimeEntryId == "" {
-			trackerTimeEntryId, err = fetchLatestTimeEntryForToday()
-			if err != nil {
-				return err
-			}
-		}
-		fmt.Printf("passed id: %s\n", trackerTimeEntryId)
-		panic("implement trackerStopCommand")
-		return nil
-	},
 }
