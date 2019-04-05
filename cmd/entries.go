@@ -20,12 +20,14 @@ var (
 	createNote        string
 	createProjectId   string
 	createServiceId   string
+	createActivity    string
 	editTimeEntryId   string
 	editDate          string
 	editDuration      string
 	editNote          string
 	editProjectId     string
 	editServiceId     string
+	editActivity      string
 	deleteTimeEntryId string
 )
 
@@ -47,6 +49,7 @@ func init() {
 	entriesCreateCommand.Flags().StringVarP(&createNote, "note", "n", "", "a note describing what was worked on")
 	entriesCreateCommand.Flags().StringVarP(&createProjectId, "projectid", "p", "", "project id for time entry (HINT: use the 'project' sub-command to find the id)")
 	entriesCreateCommand.Flags().StringVarP(&createServiceId, "serviceid", "s", "", "service id for time entry (HINT: use the 'service' sub-command to find the id)")
+	entriesCreateCommand.Flags().StringVarP(&createActivity, "activity", "a", "", "activity describing a specific project and service combination")
 	entriesCommand.AddCommand(entriesCreateCommand)
 	// edit
 	entriesEditCommand.Flags().StringVarP(&editDate, "date", "D", "", "day for which to edit entry (in YYYY-MM-DD format)")
@@ -55,6 +58,7 @@ func init() {
 	entriesEditCommand.Flags().StringVarP(&editTimeEntryId, "id", "i", "", "the time entry id to edit")
 	entriesEditCommand.Flags().StringVarP(&editProjectId, "projectid", "p", "", "project id for time entry (HINT: use the 'project' sub-command to find the id)")
 	entriesEditCommand.Flags().StringVarP(&editServiceId, "serviceid", "s", "", "service id for time entry (HINT: use the 'service' sub-command to find the id)")
+	entriesEditCommand.Flags().StringVarP(&editActivity, "activity", "a", "", "activity describing a specific project and service combination")
 	entriesCommand.AddCommand(entriesEditCommand)
 	// delete
 	entriesDeleteCommand.Flags().StringVarP(&deleteTimeEntryId, "id", "i", "", "the time entry id to delete")
@@ -114,15 +118,9 @@ var entriesCreateCommand = &cobra.Command{
 	Use:   "create",
 	Short: "creates a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if createProjectId == "" {
-			createProjectId = deps.conf.Get("projectId")
-		}
+		projectId, servicesId := servicesAndProjectId()
 
-		if createServiceId == "" {
-			createServiceId = deps.conf.Get("serviceId")
-		}
-
-		if createProjectId == "" || createServiceId == "" {
+		if projectId == "" || servicesId == "" {
 			return errors.New("please set both the project AND service id (either via arguments or config)")
 		}
 
@@ -135,8 +133,8 @@ var entriesCreateCommand = &cobra.Command{
 			Date:      &cDate,
 			Duration:  &createDuration,
 			Note:      createNote,
-			ProjectId: createProjectId,
-			ServiceId: createServiceId,
+			ProjectId: projectId,
+			ServiceId: servicesId,
 		}
 
 		entry, err := deps.miteApi.CreateTimeEntry(&timeEntry)
@@ -147,6 +145,28 @@ var entriesCreateCommand = &cobra.Command{
 		printEntries([]*mite.TimeEntry{entry})
 		return nil
 	},
+}
+
+func servicesAndProjectId() (projectId, servicesId string) {
+	if createProjectId == "" && createActivity != "" {
+		activity := deps.conf.GetActivity(createActivity)
+		createProjectId = activity.ProjectId
+	}
+
+	if createServiceId == "" && createActivity != "" {
+		activity := deps.conf.GetActivity(createActivity)
+		createServiceId = activity.ServiceId
+	}
+
+	if createProjectId == "" {
+		createProjectId = deps.conf.Get("projectId")
+	}
+
+	if createServiceId == "" {
+		createServiceId = deps.conf.Get("serviceId")
+	}
+
+	return projectId, servicesId
 }
 
 var entriesEditCommand = &cobra.Command{
@@ -188,11 +208,17 @@ var entriesEditCommand = &cobra.Command{
 			timeEntry.Note = editNote
 		}
 
-		if editProjectId != "" {
+		if editActivity != "" {
+			activity := deps.conf.GetActivity(editActivity)
+			timeEntry.ProjectId = activity.ProjectId
+			timeEntry.ServiceId = activity.ServiceId
+		}
+
+		if editProjectId != "" && timeEntry.ProjectId == "" {
 			timeEntry.ProjectId = editProjectId
 		}
 
-		if editServiceId != "" {
+		if editServiceId != "" && timeEntry.ProjectId == "" {
 			timeEntry.ServiceId = editServiceId
 		}
 

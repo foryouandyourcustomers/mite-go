@@ -9,6 +9,7 @@ import (
 type Config interface {
 	GetApiUrl() string
 	GetApiKey() string
+	GetActivity(activity string) Activity
 	Get(key string) string
 	Set(key string, value string)
 	PrintAll()
@@ -19,6 +20,11 @@ type config struct {
 	filePath     string
 	fileType     string
 	fileFullPath string
+}
+
+type Activity struct {
+	ProjectId string
+	ServiceId string
 }
 
 func NewConfig(fileName, filePath, fileType string) Config {
@@ -35,6 +41,15 @@ func (c *config) GetApiUrl() string {
 
 func (c *config) GetApiKey() string {
 	return c.Get("api.key")
+}
+
+func (c *config) GetActivity(activity string) Activity {
+	projectId := c.Get(fmt.Sprintf("activity.%s.projectId", activity))
+	serviceId := c.Get(fmt.Sprintf("activity.%s.serviceId", activity))
+	return Activity{
+		ProjectId: projectId,
+		ServiceId: serviceId,
+	}
 }
 
 func (c *config) Get(key string) string {

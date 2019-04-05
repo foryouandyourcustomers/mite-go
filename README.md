@@ -14,6 +14,11 @@ $PATH (or %PATH% on windows).
 3. Optional: set a default project & service by:
    1. retrieving the desired project & service id by executing `mite-go projects` and `mite-go services` respectively
    2. configuring those id's as default by executing `mite-go config projectId=<the project id>` and `mite-go config serviceId=<the service id>`
+4. Optional: mite-go allows you to define often used project & service combinations as activities. You can configure them by:
+   1. think of a good name for the activity
+   2. run `mite-go config activity.<your activity name here>.projectId=<the project id>`
+   3. run `mite-go config activity.<your activity name here>.serviceId=<the service id>`
+   4. the activity names can be used in the `entries create` and `entries edit` sub-commands
 
 # Usage
 
