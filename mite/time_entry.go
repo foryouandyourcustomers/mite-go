@@ -2,7 +2,7 @@ package mite
 
 import (
 	"fmt"
-	"github.com/leanovate/mite-go/date"
+	"github.com/leanovate/mite-go/datetime"
 	"math"
 	"net/url"
 	"strconv"
@@ -12,7 +12,7 @@ import (
 type TimeEntry struct {
 	Id           string
 	Duration     time.Duration
-	Date         date.LocalDate
+	Date         datetime.LocalDate
 	Note         string
 	Billable     bool
 	Locked       bool
@@ -31,7 +31,7 @@ type TimeEntry struct {
 }
 
 type TimeEntryCommand struct {
-	Date      *date.LocalDate
+	Date      *datetime.LocalDate
 	Duration  *time.Duration
 	Note      string
 	UserId    string
@@ -58,8 +58,8 @@ func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
 }
 
 type TimeEntryQuery struct {
-	From      *date.LocalDate
-	To        *date.LocalDate
+	From      *datetime.LocalDate
+	To        *datetime.LocalDate
 	Direction string
 }
 
@@ -116,7 +116,7 @@ type timeEntryResponse struct {
 }
 
 func (r *timeEntryResponse) toTimeEntry() *TimeEntry {
-	d, err := date.ParseLocalDate(r.TimeEntry.Date)
+	d, err := datetime.ParseLocalDate(r.TimeEntry.Date)
 	if err != nil {
 		panic(err)
 	}

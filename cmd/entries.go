@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cheynewallace/tabby"
-	"github.com/leanovate/mite-go/date"
+	"github.com/leanovate/mite-go/datetime"
 	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
 	"strings"
@@ -32,7 +32,7 @@ var (
 )
 
 func init() {
-	today := date.Today()
+	today := datetime.Today()
 	defaultFrom := today.Add(0, 0, -7)
 	defaultDuration, err := time.ParseDuration("0m")
 	if err != nil {
@@ -78,11 +78,11 @@ var entriesListCommand = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		direction := listOrder
 
-		to, err := date.ParseLocalDate(listTo)
+		to, err := datetime.ParseLocalDate(listTo)
 		if err != nil {
 			return err
 		}
-		from, err := date.ParseLocalDate(listFrom)
+		from, err := datetime.ParseLocalDate(listFrom)
 		if err != nil {
 			return err
 		}
@@ -124,7 +124,7 @@ var entriesCreateCommand = &cobra.Command{
 			return errors.New("please set both the project AND service id (either via arguments or config)")
 		}
 
-		cDate, err := date.ParseLocalDate(createDate)
+		cDate, err := datetime.ParseLocalDate(createDate)
 		if err != nil {
 			return err
 		}
@@ -189,7 +189,7 @@ var entriesEditCommand = &cobra.Command{
 
 		// override only fields affected by set parameters of edit
 		if editDate != "" {
-			eDate, err := date.ParseLocalDate(editDate)
+			eDate, err := datetime.ParseLocalDate(editDate)
 			if err != nil {
 				return err
 			}

@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 	"github.com/cheynewallace/tabby"
-	"github.com/leanovate/mite-go/date"
+	"github.com/leanovate/mite-go/datetime"
 	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
 )
@@ -102,7 +102,7 @@ var trackerStopCommand = &cobra.Command{
 }
 
 func fetchLatestTimeEntryForToday() (string, error) {
-	today := date.Today()
+	today := datetime.Today()
 
 	entries, err := deps.miteApi.TimeEntries(&mite.TimeEntryQuery{
 		To:        &today,
