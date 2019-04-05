@@ -1,6 +1,6 @@
 # Mite-go
 
-A [https://mite.yo.lk/en/](MITE) time tracking command line interface.
+A [Mite](https://mite.yo.lk/en/) time tracking command line interface.
 
 ## Setup
 
