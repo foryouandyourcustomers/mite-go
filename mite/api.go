@@ -21,6 +21,12 @@ type TimeEntryApi interface {
 	DeleteTimeEntry(id string) error
 }
 
+type TrackerApi interface {
+	Tracker() (*TrackingTimeEntry, error)
+	StartTracker(id string) (*TrackingTimeEntry, *StoppedTimeEntry, error)
+	StopTracker(id string) (*StoppedTimeEntry, error)
+}
+
 type CustomerApi interface{}
 
 type ProjectApi interface {
@@ -36,6 +42,7 @@ type UserApi interface{}
 type Api interface {
 	AccountApi
 	TimeEntryApi
+	TrackerApi
 	CustomerApi
 	ProjectApi
 	ServiceApi
