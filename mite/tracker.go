@@ -25,8 +25,8 @@ type trackerResponse struct {
 			Since   time.Time `json:"since"`
 		} `json:"tracking_time_entry"`
 		StoppedTimeEntry *struct {
-			Id      string `json:"id"`
-			Minutes int    `json:"minutes"`
+			Id      int `json:"id"`
+			Minutes int `json:"minutes"`
 		} `json:"stopped_time_entry"`
 	} `json:"tracker"`
 }
@@ -49,8 +49,8 @@ func (r *trackerResponse) toStoppedTimeEntry() *StoppedTimeEntry {
 	}
 
 	return &StoppedTimeEntry{
-		Id:       strconv.Itoa(r.Tracker.TrackingTimeEntry.Id),
-		Duration: time.Duration(r.Tracker.TrackingTimeEntry.Minutes) * time.Minute,
+		Id:       strconv.Itoa(r.Tracker.StoppedTimeEntry.Id),
+		Duration: time.Duration(r.Tracker.StoppedTimeEntry.Minutes) * time.Minute,
 	}
 }
 
