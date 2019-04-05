@@ -179,9 +179,9 @@ func (a *api) CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error) {
 }
 
 func (a *api) EditTimeEntry(id string, command *TimeEntryCommand) error {
-	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), command.toRequest())
+	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), command.toRequest(), nil)
 }
 
 func (a *api) DeleteTimeEntry(id string) error {
-	return a.delete(fmt.Sprintf("/time_entries/%s.json", id))
+	return a.delete(fmt.Sprintf("/time_entries/%s.json", id), nil)
 }

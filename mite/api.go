@@ -107,10 +107,14 @@ func (a *api) post(resource string, body interface{}, result interface{}) error 
 		return err
 	}
 
-	return json.NewDecoder(res.Body).Decode(result)
+	if result != nil {
+		return json.NewDecoder(res.Body).Decode(result)
+	}
+
+	return nil
 }
 
-func (a *api) patch(resource string, body interface{}) error {
+func (a *api) patch(resource string, body interface{}, result interface{}) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -135,10 +139,14 @@ func (a *api) patch(resource string, body interface{}) error {
 		return err
 	}
 
+	if result != nil {
+		return json.NewDecoder(res.Body).Decode(result)
+	}
+
 	return nil
 }
 
-func (a *api) delete(resource string) error {
+func (a *api) delete(resource string, result interface{}) error {
 	req, err := http.NewRequest(http.MethodDelete, a.url(resource), nil)
 	if err != nil {
 		return err
@@ -155,6 +163,10 @@ func (a *api) delete(resource string) error {
 	defer func() { _ = res.Body.Close() }()
 	if err := a.check(res); err != nil {
 		return err
+	}
+
+	if result != nil {
+		return json.NewDecoder(res.Body).Decode(result)
 	}
 
 	return nil
