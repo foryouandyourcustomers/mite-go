@@ -2,13 +2,8 @@ package mite
 
 import (
 	"fmt"
+	"github.com/leanovate/mite-go/domain"
 )
-
-type Project struct {
-	Id   string
-	Name string
-	Note string
-}
 
 type projectResponse struct {
 	Project struct {
@@ -18,24 +13,24 @@ type projectResponse struct {
 	} `json:"project"`
 }
 
-func (r *projectResponse) ToProject() *Project {
-	return &Project{
+func (r *projectResponse) toProject() *domain.Project {
+	return &domain.Project{
 		Id:   fmt.Sprintf("%d", r.Project.Id),
 		Name: r.Project.Name,
 		Note: r.Project.Note,
 	}
 }
 
-func (a *api) Projects() ([]*Project, error) {
+func (a *api) Projects() ([]*domain.Project, error) {
 	var prs []projectResponse
 	err := a.get("projects.json", &prs)
 	if err != nil {
 		return nil, err
 	}
 
-	var projects []*Project
+	var projects []*domain.Project
 	for _, pr := range prs {
-		projects = append(projects, pr.ToProject())
+		projects = append(projects, pr.toProject())
 	}
 
 	return projects, nil

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/leanovate/mite-go/domain"
 	"net/http"
 	"net/url"
 )
@@ -30,7 +31,7 @@ type TrackerApi interface {
 type CustomerApi interface{}
 
 type ProjectApi interface {
-	Projects() ([]*Project, error)
+	Projects() ([]*domain.Project, error)
 }
 
 type ServiceApi interface {
