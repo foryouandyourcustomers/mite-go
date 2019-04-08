@@ -3,7 +3,6 @@ package mite
 import (
 	"fmt"
 	"github.com/leanovate/mite-go/datetime"
-	"math"
 	"net/url"
 	"strconv"
 	"time"
@@ -11,7 +10,7 @@ import (
 
 type TimeEntry struct {
 	Id           string
-	Duration     time.Duration
+	Minutes      datetime.Minutes
 	Date         datetime.LocalDate
 	Note         string
 	Billable     bool
@@ -32,7 +31,7 @@ type TimeEntry struct {
 
 type TimeEntryCommand struct {
 	Date      *datetime.LocalDate
-	Duration  *time.Duration
+	Minutes   *datetime.Minutes
 	Note      string
 	UserId    string
 	ProjectId string
@@ -45,8 +44,8 @@ func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
 	if c.Date != nil {
 		r.TimeEntry.Date = c.Date.String()
 	}
-	if c.Duration != nil {
-		r.TimeEntry.Minutes = int(math.Floor(math.Round(c.Duration.Minutes()))) // BOGUS
+	if c.Minutes != nil {
+		r.TimeEntry.Minutes = c.Minutes.Value()
 	}
 	r.TimeEntry.Note = c.Note
 	r.TimeEntry.UserId = c.UserId
@@ -123,7 +122,7 @@ func (r *timeEntryResponse) toTimeEntry() *TimeEntry {
 
 	return &TimeEntry{
 		Id:           strconv.Itoa(r.TimeEntry.Id),
-		Duration:     time.Duration(r.TimeEntry.Minutes) * time.Minute,
+		Minutes:      datetime.NewMinutes(r.TimeEntry.Minutes),
 		Date:         d,
 		Note:         r.TimeEntry.Note,
 		Billable:     r.TimeEntry.Billable,

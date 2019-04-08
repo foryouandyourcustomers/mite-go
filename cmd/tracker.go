@@ -41,7 +41,7 @@ var trackerStatusCommand = &cobra.Command{
 
 		t := tabby.New()
 		t.AddHeader("id", "time", "state", "since")
-		t.AddLine(tracking.Id, tracking.Duration, "tracking", tracking.Since)
+		t.AddLine(tracking.Id, tracking.Minutes, "tracking", tracking.Since)
 		t.Print()
 
 		return nil
@@ -66,9 +66,9 @@ var trackerStartCommand = &cobra.Command{
 
 		t := tabby.New()
 		t.AddHeader("id", "time", "state", "since")
-		t.AddLine(tracking.Id, tracking.Duration, "tracking", tracking.Since)
+		t.AddLine(tracking.Id, tracking.Minutes, "tracking", tracking.Since)
 		if stopped != nil {
-			t.AddLine(stopped.Id, stopped.Duration, "stopped")
+			t.AddLine(stopped.Id, stopped.Minutes, "stopped")
 		}
 		t.Print()
 
@@ -94,7 +94,7 @@ var trackerStopCommand = &cobra.Command{
 
 		t := tabby.New()
 		t.AddHeader("id", "time", "state")
-		t.AddLine(stopped.Id, stopped.Duration, "stopped")
+		t.AddLine(stopped.Id, stopped.Minutes, "stopped")
 		t.Print()
 
 		return nil
