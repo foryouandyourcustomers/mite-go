@@ -2,20 +2,20 @@ package mite
 
 import (
 	"fmt"
-	"github.com/leanovate/mite-go/datetime"
+	"github.com/leanovate/mite-go/domain"
 	"strconv"
 	"time"
 )
 
 type TrackingTimeEntry struct {
 	Id      string
-	Minutes datetime.Minutes
+	Minutes domain.Minutes
 	Since   time.Time
 }
 
 type StoppedTimeEntry struct {
 	Id      string
-	Minutes datetime.Minutes
+	Minutes domain.Minutes
 }
 
 type trackerResponse struct {
@@ -39,7 +39,7 @@ func (r *trackerResponse) toTrackingTimeEntry() *TrackingTimeEntry {
 
 	return &TrackingTimeEntry{
 		Id:      strconv.Itoa(r.Tracker.TrackingTimeEntry.Id),
-		Minutes: datetime.NewMinutes(r.Tracker.TrackingTimeEntry.Minutes),
+		Minutes: domain.NewMinutes(r.Tracker.TrackingTimeEntry.Minutes),
 		Since:   r.Tracker.TrackingTimeEntry.Since,
 	}
 }
@@ -51,7 +51,7 @@ func (r *trackerResponse) toStoppedTimeEntry() *StoppedTimeEntry {
 
 	return &StoppedTimeEntry{
 		Id:      strconv.Itoa(r.Tracker.StoppedTimeEntry.Id),
-		Minutes: datetime.NewMinutes(r.Tracker.StoppedTimeEntry.Minutes),
+		Minutes: domain.NewMinutes(r.Tracker.StoppedTimeEntry.Minutes),
 	}
 }
 

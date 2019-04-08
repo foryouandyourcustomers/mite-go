@@ -1,7 +1,7 @@
-package datetime_test
+package domain_test
 
 import (
-	"github.com/leanovate/mite-go/datetime"
+	"github.com/leanovate/mite-go/domain"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -9,26 +9,26 @@ import (
 
 func TestToday(t *testing.T) {
 	expected := time.Now().Local().Format("2006-01-02")
-	actual := datetime.Today().String()
+	actual := domain.Today().String()
 
 	assert.Equal(t, expected, actual)
 }
 
 func TestParseLocalDate(t *testing.T) {
-	expected := datetime.NewLocalDate(time.Date(1970, time.January, 1, 0, 0, 0, 0, time.Local))
-	actual, err := datetime.ParseLocalDate("1970-01-01")
+	expected := domain.NewLocalDate(time.Date(1970, time.January, 1, 0, 0, 0, 0, time.Local))
+	actual, err := domain.ParseLocalDate("1970-01-01")
 
 	assert.Nil(t, err)
 	assert.Equal(t, expected, actual)
 
-	_, err = datetime.ParseLocalDate("1970-01-01T00:00:00Z")
+	_, err = domain.ParseLocalDate("1970-01-01T00:00:00Z")
 
 	assert.IsType(t, &time.ParseError{}, err)
 }
 
 func TestLocalDate_Add(t *testing.T) {
-	expected := datetime.NewLocalDate(time.Date(1971, time.February, 2, 0, 0, 0, 0, time.Local))
-	actual := datetime.
+	expected := domain.NewLocalDate(time.Date(1971, time.February, 2, 0, 0, 0, 0, time.Local))
+	actual := domain.
 		NewLocalDate(time.Date(1970, time.January, 1, 0, 0, 0, 0, time.Local)).
 		Add(1, 1, 1)
 
@@ -37,7 +37,7 @@ func TestLocalDate_Add(t *testing.T) {
 
 func TestLocalDate_String(t *testing.T) {
 	expected := "1970-01-01"
-	actual := datetime.NewLocalDate(time.Date(1970, time.January, 1, 0, 0, 0, 0, time.Local)).String()
+	actual := domain.NewLocalDate(time.Date(1970, time.January, 1, 0, 0, 0, 0, time.Local)).String()
 
 	assert.Equal(t, expected, actual)
 }
