@@ -30,7 +30,7 @@ func TestMinutes_Value(t *testing.T) {
 }
 
 func TestMinutes_String(t *testing.T) {
-	expected := "23m0s"
+	expected := "23m"
 	actual := datetime.NewMinutes(23).String()
 
 	assert.Equal(t, expected, actual)

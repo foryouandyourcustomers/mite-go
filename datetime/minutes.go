@@ -2,6 +2,7 @@ package datetime
 
 import (
 	"math"
+	"strings"
 	"time"
 )
 
@@ -27,5 +28,5 @@ func (m Minutes) Value() int {
 }
 
 func (m Minutes) String() string {
-	return m.duration.String()
+	return strings.TrimSuffix(m.duration.String(), "0s")
 }
