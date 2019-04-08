@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cheynewallace/tabby"
-	"github.com/leanovate/mite-go/datetime"
+	"github.com/leanovate/mite-go/domain"
 	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
 	"strings"
@@ -31,9 +31,9 @@ var (
 )
 
 func init() {
-	today := datetime.Today()
+	today := domain.Today()
 	defaultFrom := today.Add(0, 0, -7)
-	defaultMinutes := datetime.NewMinutes(0).String()
+	defaultMinutes := domain.NewMinutes(0).String()
 
 	// list
 	entriesListCommand.Flags().StringVarP(&listTo, "to", "t", today.String(), "list only entries until date (in YYYY-MM-DD format)")
@@ -75,11 +75,11 @@ var entriesListCommand = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		direction := listOrder
 
-		to, err := datetime.ParseLocalDate(listTo)
+		to, err := domain.ParseLocalDate(listTo)
 		if err != nil {
 			return err
 		}
-		from, err := datetime.ParseLocalDate(listFrom)
+		from, err := domain.ParseLocalDate(listFrom)
 		if err != nil {
 			return err
 		}
@@ -121,11 +121,11 @@ var entriesCreateCommand = &cobra.Command{
 			return errors.New("please set both the project AND service id (either via arguments or config)")
 		}
 
-		cDate, err := datetime.ParseLocalDate(createDate)
+		cDate, err := domain.ParseLocalDate(createDate)
 		if err != nil {
 			return err
 		}
-		cMinutes, err := datetime.ParseMinutes(createMinutes)
+		cMinutes, err := domain.ParseMinutes(createMinutes)
 		if err != nil {
 			return err
 		}
@@ -190,7 +190,7 @@ var entriesEditCommand = &cobra.Command{
 
 		// override only fields affected by set parameters of edit
 		if editDate != "" {
-			eDate, err := datetime.ParseLocalDate(editDate)
+			eDate, err := domain.ParseLocalDate(editDate)
 			if err != nil {
 				return err
 			}
@@ -198,7 +198,7 @@ var entriesEditCommand = &cobra.Command{
 		}
 
 		if editMinutes != "" {
-			eMinutes, err := datetime.ParseMinutes(editMinutes)
+			eMinutes, err := domain.ParseMinutes(editMinutes)
 			if err != nil {
 				return err
 			}
