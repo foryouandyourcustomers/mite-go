@@ -1,6 +1,10 @@
 package domain
 
-import "time"
+import (
+	"math"
+	"strings"
+	"time"
+)
 
 const ISO8601 = "2006-01-02"
 
@@ -31,4 +35,29 @@ func (d LocalDate) Add(years int, months int, days int) LocalDate {
 
 func (d LocalDate) String() string {
 	return d.time.Format(ISO8601)
+}
+
+type Minutes struct {
+	duration time.Duration
+}
+
+func NewMinutes(i int) Minutes {
+	return Minutes{duration: time.Duration(i) * time.Minute}
+}
+
+func ParseMinutes(s string) (Minutes, error) {
+	d, err := time.ParseDuration(s)
+	if err != nil {
+		return Minutes{}, err
+	}
+
+	return Minutes{duration: d.Round(time.Minute)}, nil
+}
+
+func (m Minutes) Value() int {
+	return int(math.Min(m.duration.Minutes(), math.MaxInt32))
+}
+
+func (m Minutes) String() string {
+	return strings.TrimSuffix(m.duration.String(), "0s")
 }
