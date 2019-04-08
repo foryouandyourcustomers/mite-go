@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/leanovate/mite-go/domain"
 	"net/url"
-	"strconv"
 	"time"
 )
 
@@ -17,9 +16,9 @@ func fromCommand(c *domain.TimeEntryCommand) *timeEntryRequest {
 		r.TimeEntry.Minutes = c.Minutes.Value()
 	}
 	r.TimeEntry.Note = c.Note
-	r.TimeEntry.UserId = c.UserId
-	r.TimeEntry.ProjectId = c.ProjectId
-	r.TimeEntry.ServiceId = c.ServiceId
+	r.TimeEntry.UserId = int(c.UserId)
+	r.TimeEntry.ProjectId = int(c.ProjectId)
+	r.TimeEntry.ServiceId = int(c.ServiceId)
 	r.TimeEntry.Locked = c.Locked
 
 	return r
@@ -47,9 +46,9 @@ type timeEntryRequest struct {
 		Date      string `json:"date_at,omitempty"`
 		Minutes   int    `json:"minutes,omitempty"`
 		Note      string `json:"note,omitempty"`
-		UserId    string `json:"user_id,omitempty"`
-		ProjectId string `json:"project_id,omitempty"`
-		ServiceId string `json:"service_id,omitempty"`
+		UserId    int    `json:"user_id,omitempty"`
+		ProjectId int    `json:"project_id,omitempty"`
+		ServiceId int    `json:"service_id,omitempty"`
 		Locked    bool   `json:"locked,omitempty"`
 	} `json:"time_entry"`
 }
@@ -92,13 +91,13 @@ func (r *timeEntryResponse) toTimeEntry() *domain.TimeEntry {
 		Locked:       r.TimeEntry.Locked,
 		Revenue:      r.TimeEntry.Revenue,
 		HourlyRate:   r.TimeEntry.HourlyRate,
-		UserId:       strconv.Itoa(r.TimeEntry.UserId),
+		UserId:       domain.NewUserId(r.TimeEntry.UserId),
 		UserName:     r.TimeEntry.UserName,
-		ProjectId:    strconv.Itoa(r.TimeEntry.ProjectId),
+		ProjectId:    domain.NewProjectId(r.TimeEntry.ProjectId),
 		ProjectName:  r.TimeEntry.ProjectName,
-		CustomerId:   strconv.Itoa(r.TimeEntry.CustomerId),
+		CustomerId:   domain.NewCustomerId(r.TimeEntry.CustomerId),
 		CustomerName: r.TimeEntry.CustomerName,
-		ServiceId:    strconv.Itoa(r.TimeEntry.ServiceId),
+		ServiceId:    domain.NewServiceId(r.TimeEntry.ServiceId),
 		ServiceName:  r.TimeEntry.ServiceName,
 		CreatedAt:    r.TimeEntry.CreatedAt,
 		UpdatedAt:    r.TimeEntry.UpdatedAt,

@@ -33,13 +33,13 @@ type TimeEntry struct {
 	Locked       bool
 	Revenue      float64
 	HourlyRate   int
-	UserId       string
+	UserId       UserId
 	UserName     string
-	ProjectId    string
+	ProjectId    ProjectId
 	ProjectName  string
-	CustomerId   string
+	CustomerId   CustomerId
 	CustomerName string
-	ServiceId    string
+	ServiceId    ServiceId
 	ServiceName  string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
@@ -49,9 +49,9 @@ type TimeEntryCommand struct {
 	Date      *LocalDate
 	Minutes   *Minutes
 	Note      string
-	UserId    string
-	ProjectId string
-	ServiceId string
+	UserId    UserId
+	ProjectId ProjectId
+	ServiceId ServiceId
 	Locked    bool
 }
 

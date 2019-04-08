@@ -114,9 +114,8 @@ var entriesCreateCommand = &cobra.Command{
 	Use:   "create",
 	Short: "creates a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		projectId, servicesId := servicesAndProjectId()
-
-		if projectId == "" || servicesId == "" {
+		projectId, serviceId := projectAndServiceId()
+		if projectId == "" || serviceId == "" {
 			return errors.New("please set both the project AND service id (either via arguments or config)")
 		}
 
@@ -128,13 +127,21 @@ var entriesCreateCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		cProjectId, err := domain.ParseProjectId(projectId)
+		if err != nil {
+			return err
+		}
+		cServiceId, err := domain.ParseServiceId(serviceId)
+		if err != nil {
+			return err
+		}
 
 		timeEntry := domain.TimeEntryCommand{
 			Date:      &cDate,
 			Minutes:   &cMinutes,
 			Note:      createNote,
-			ProjectId: projectId,
-			ServiceId: servicesId,
+			ProjectId: cProjectId,
+			ServiceId: cServiceId,
 		}
 
 		entry, err := deps.miteApi.CreateTimeEntry(&timeEntry)
@@ -147,7 +154,7 @@ var entriesCreateCommand = &cobra.Command{
 	},
 }
 
-func servicesAndProjectId() (projectId, servicesId string) {
+func projectAndServiceId() (projectId, servicesId string) {
 	if createProjectId == "" && createActivity != "" {
 		activity := deps.conf.GetActivity(createActivity)
 		createProjectId = activity.ProjectId
@@ -215,16 +222,34 @@ var entriesEditCommand = &cobra.Command{
 
 		if editActivity != "" {
 			activity := deps.conf.GetActivity(editActivity)
-			command.ProjectId = activity.ProjectId
-			command.ServiceId = activity.ServiceId
+
+			projectId, err := domain.ParseProjectId(activity.ProjectId)
+			if err != nil {
+				return err
+			}
+			command.ProjectId = projectId
+
+			serviceId, err := domain.ParseServiceId(activity.ServiceId)
+			if err != nil {
+				return err
+			}
+			command.ServiceId = serviceId
 		}
 
-		if editProjectId != "" && command.ProjectId == "" {
-			command.ProjectId = editProjectId
+		if editProjectId != "" && command.ProjectId == 0 {
+			projectId, err := domain.ParseProjectId(editProjectId)
+			if err != nil {
+				return err
+			}
+			command.ProjectId = projectId
 		}
 
-		if editServiceId != "" && command.ProjectId == "" {
-			command.ServiceId = editServiceId
+		if editServiceId != "" && command.ProjectId == 0 {
+			serviceId, err := domain.ParseServiceId(editServiceId)
+			if err != nil {
+				return err
+			}
+			command.ServiceId = serviceId
 		}
 
 		err = deps.miteApi.EditTimeEntry(entryId, &command)

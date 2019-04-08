@@ -1,7 +1,6 @@
 package mite
 
 import (
-	"fmt"
 	"github.com/leanovate/mite-go/domain"
 )
 
@@ -15,7 +14,7 @@ type serviceResponse struct {
 
 func (r *serviceResponse) toService() *domain.Service {
 	return &domain.Service{
-		Id:   fmt.Sprintf("%d", r.Service.Id),
+		Id:   domain.NewServiceId(r.Service.Id),
 		Name: r.Service.Name,
 		Note: r.Service.Note,
 	}
