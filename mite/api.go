@@ -10,7 +10,7 @@ import (
 )
 
 const contentType = "application/json"
-const userAgent = "mite-go/0.1 (+github.com/leanovate/mite-go)"
+const userAgentTemplate = "mite-go/%s (+github.com/leanovate/mite-go)"
 
 type AccountApi interface{}
 
@@ -51,13 +51,15 @@ type Api interface {
 }
 
 type api struct {
-	base   string
-	key    string
-	client *http.Client
+	base      string
+	key       string
+	userAgent string
+	client    *http.Client
 }
 
-func NewApi(base string, key string) Api {
-	return &api{base: base, key: key, client: &http.Client{}}
+func NewApi(base string, key string, version string) Api {
+	ua := fmt.Sprintf(userAgentTemplate, version)
+	return &api{base: base, key: key, userAgent: ua, client: &http.Client{}}
 }
 
 func (a *api) get(resource string, result interface{}) error {
@@ -66,7 +68,7 @@ func (a *api) get(resource string, result interface{}) error {
 		return err
 	}
 
-	req.Header.Add("User-Agent", userAgent)
+	req.Header.Add("User-Agent", a.userAgent)
 	req.Header.Add("X-MiteApiKey", a.key)
 
 	res, err := a.client.Do(req)
@@ -102,7 +104,7 @@ func (a *api) post(resource string, body interface{}, result interface{}) error 
 	}
 
 	req.Header.Add("Content-Type", contentType)
-	req.Header.Add("User-Agent", userAgent)
+	req.Header.Add("User-Agent", a.userAgent)
 	req.Header.Add("X-MiteApiKey", a.key)
 
 	res, err := a.client.Do(req)
@@ -134,7 +136,7 @@ func (a *api) patch(resource string, body interface{}, result interface{}) error
 	}
 
 	req.Header.Add("Content-Type", contentType)
-	req.Header.Add("User-Agent", userAgent)
+	req.Header.Add("User-Agent", a.userAgent)
 	req.Header.Add("X-MiteApiKey", a.key)
 
 	res, err := a.client.Do(req)
@@ -160,7 +162,7 @@ func (a *api) delete(resource string, result interface{}) error {
 		return err
 	}
 
-	req.Header.Add("User-Agent", userAgent)
+	req.Header.Add("User-Agent", a.userAgent)
 	req.Header.Add("X-MiteApiKey", a.key)
 
 	res, err := a.client.Do(req)
