@@ -7,17 +7,6 @@ import (
 	"time"
 )
 
-type TrackingTimeEntry struct {
-	Id      string
-	Minutes domain.Minutes
-	Since   time.Time
-}
-
-type StoppedTimeEntry struct {
-	Id      string
-	Minutes domain.Minutes
-}
-
 type trackerResponse struct {
 	Tracker struct {
 		TrackingTimeEntry *struct {
@@ -32,30 +21,30 @@ type trackerResponse struct {
 	} `json:"tracker"`
 }
 
-func (r *trackerResponse) toTrackingTimeEntry() *TrackingTimeEntry {
+func (r *trackerResponse) toTrackingTimeEntry() *domain.TrackingTimeEntry {
 	if r.Tracker.TrackingTimeEntry == nil {
 		return nil
 	}
 
-	return &TrackingTimeEntry{
+	return &domain.TrackingTimeEntry{
 		Id:      strconv.Itoa(r.Tracker.TrackingTimeEntry.Id),
 		Minutes: domain.NewMinutes(r.Tracker.TrackingTimeEntry.Minutes),
 		Since:   r.Tracker.TrackingTimeEntry.Since,
 	}
 }
 
-func (r *trackerResponse) toStoppedTimeEntry() *StoppedTimeEntry {
+func (r *trackerResponse) toStoppedTimeEntry() *domain.StoppedTimeEntry {
 	if r.Tracker.StoppedTimeEntry == nil {
 		return nil
 	}
 
-	return &StoppedTimeEntry{
+	return &domain.StoppedTimeEntry{
 		Id:      strconv.Itoa(r.Tracker.StoppedTimeEntry.Id),
 		Minutes: domain.NewMinutes(r.Tracker.StoppedTimeEntry.Minutes),
 	}
 }
 
-func (a *api) Tracker() (*TrackingTimeEntry, error) {
+func (a *api) Tracker() (*domain.TrackingTimeEntry, error) {
 	tr := trackerResponse{}
 	err := a.get("/tracker.json", &tr)
 	if err != nil {
@@ -65,7 +54,7 @@ func (a *api) Tracker() (*TrackingTimeEntry, error) {
 	return tr.toTrackingTimeEntry(), nil
 }
 
-func (a *api) StartTracker(id string) (*TrackingTimeEntry, *StoppedTimeEntry, error) {
+func (a *api) StartTracker(id string) (*domain.TrackingTimeEntry, *domain.StoppedTimeEntry, error) {
 	tr := &trackerResponse{}
 	err := a.patch(fmt.Sprintf("/tracker/%s.json", id), nil, tr)
 	if err != nil {
@@ -75,7 +64,7 @@ func (a *api) StartTracker(id string) (*TrackingTimeEntry, *StoppedTimeEntry, er
 	return tr.toTrackingTimeEntry(), tr.toStoppedTimeEntry(), nil
 }
 
-func (a *api) StopTracker(id string) (*StoppedTimeEntry, error) {
+func (a *api) StopTracker(id string) (*domain.StoppedTimeEntry, error) {
 	tr := &trackerResponse{}
 	err := a.delete(fmt.Sprintf("/tracker/%s.json", id), tr)
 	if err != nil {

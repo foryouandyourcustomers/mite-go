@@ -23,9 +23,9 @@ type TimeEntryApi interface {
 }
 
 type TrackerApi interface {
-	Tracker() (*TrackingTimeEntry, error)
-	StartTracker(id string) (*TrackingTimeEntry, *StoppedTimeEntry, error)
-	StopTracker(id string) (*StoppedTimeEntry, error)
+	Tracker() (*domain.TrackingTimeEntry, error)
+	StartTracker(id string) (*domain.TrackingTimeEntry, *domain.StoppedTimeEntry, error)
+	StopTracker(id string) (*domain.StoppedTimeEntry, error)
 }
 
 type CustomerApi interface{}
