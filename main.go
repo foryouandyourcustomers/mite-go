@@ -32,6 +32,14 @@ func main() {
 	c := config.NewConfig(configFileName, homeDirectory, configType)
 	api := mite.NewApi(c.GetApiUrl(), c.GetApiKey(), v.Version)
 
+	if c.GetApiUrl() == "" {
+		_, _ = fmt.Fprintln(os.Stderr, "please configure your API url by executing: 'mite config api.url=<your mite api url>'")
+	}
+
+	if c.GetApiKey() == "" {
+		_, _ = fmt.Fprintln(os.Stderr, "please configure your API key by executing: 'mite config api.key=<your mite api key>'")
+	}
+
 	err = cmd.HandleCommands(c, api, v)
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
