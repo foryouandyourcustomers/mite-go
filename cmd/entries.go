@@ -8,7 +8,6 @@ import (
 	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
 	"strings"
-	"time"
 )
 
 var (
@@ -16,14 +15,14 @@ var (
 	listFrom          string
 	listOrder         string
 	createDate        string
-	createDuration    time.Duration
+	createMinutes     string
 	createNote        string
 	createProjectId   string
 	createServiceId   string
 	createActivity    string
 	editTimeEntryId   string
 	editDate          string
-	editDuration      string
+	editMinutes       string
 	editNote          string
 	editProjectId     string
 	editServiceId     string
@@ -34,10 +33,8 @@ var (
 func init() {
 	today := datetime.Today()
 	defaultFrom := today.Add(0, 0, -7)
-	defaultDuration, err := time.ParseDuration("0m")
-	if err != nil {
-		panic(err)
-	}
+	defaultMinutes := datetime.NewMinutes(0).String()
+
 	// list
 	entriesListCommand.Flags().StringVarP(&listTo, "to", "t", today.String(), "list only entries until date (in YYYY-MM-DD format)")
 	entriesListCommand.Flags().StringVarP(&listFrom, "from", "f", defaultFrom.String(), "list only entries starting at date (in YYYY-MM-DD format)")
@@ -45,7 +42,7 @@ func init() {
 	entriesCommand.AddCommand(entriesListCommand)
 	// create
 	entriesCreateCommand.Flags().StringVarP(&createDate, "date", "D", today.String(), "day for which to create entry (in YYYY-MM-DD format)")
-	entriesCreateCommand.Flags().DurationVarP(&createDuration, "duration", "d", defaultDuration, "duration of entry (format examples: '1h15m' or '300m' or '6h')")
+	entriesCreateCommand.Flags().StringVarP(&createMinutes, "duration", "d", defaultMinutes, "duration of entry (format examples: '1h15m' or '300m' or '6h')")
 	entriesCreateCommand.Flags().StringVarP(&createNote, "note", "n", "", "a note describing what was worked on")
 	entriesCreateCommand.Flags().StringVarP(&createProjectId, "projectid", "p", "", "project id for time entry (HINT: use the 'project' sub-command to find the id)")
 	entriesCreateCommand.Flags().StringVarP(&createServiceId, "serviceid", "s", "", "service id for time entry (HINT: use the 'service' sub-command to find the id)")
@@ -53,7 +50,7 @@ func init() {
 	entriesCommand.AddCommand(entriesCreateCommand)
 	// edit
 	entriesEditCommand.Flags().StringVarP(&editDate, "date", "D", "", "day for which to edit entry (in YYYY-MM-DD format)")
-	entriesEditCommand.Flags().StringVarP(&editDuration, "duration", "d", "", "duration of entry (format examples: '1h15m' or '300m' or '6h')")
+	entriesEditCommand.Flags().StringVarP(&editMinutes, "duration", "d", "", "duration of entry (format examples: '1h15m' or '300m' or '6h')")
 	entriesEditCommand.Flags().StringVarP(&editNote, "note", "n", "", "a note describing what was worked on")
 	entriesEditCommand.Flags().StringVarP(&editTimeEntryId, "id", "i", "", "the time entry id to edit")
 	entriesEditCommand.Flags().StringVarP(&editProjectId, "projectid", "p", "", "project id for time entry (HINT: use the 'project' sub-command to find the id)")
@@ -109,7 +106,7 @@ func printEntries(entries []*mite.TimeEntry) {
 		shortenedNotes := fmt.Sprintf("%.50s", trimmedNotes)
 		shortenedProject := fmt.Sprintf("%.25s", entry.ProjectName)
 		shortenedService := fmt.Sprintf("%.25s", entry.ServiceName)
-		t.AddLine(entry.Id, shortenedNotes, entry.Date, entry.Duration.String(), shortenedProject, shortenedService)
+		t.AddLine(entry.Id, shortenedNotes, entry.Date, entry.Minutes.String(), shortenedProject, shortenedService)
 	}
 	t.Print()
 }
@@ -128,10 +125,14 @@ var entriesCreateCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		cMinutes, err := datetime.ParseMinutes(createMinutes)
+		if err != nil {
+			return err
+		}
 
 		timeEntry := mite.TimeEntryCommand{
 			Date:      &cDate,
-			Duration:  &createDuration,
+			Minutes:   &cMinutes,
 			Note:      createNote,
 			ProjectId: projectId,
 			ServiceId: servicesId,
@@ -181,7 +182,7 @@ var entriesEditCommand = &cobra.Command{
 		// use retrieved values as defaults
 		timeEntry := mite.TimeEntryCommand{
 			Date:      &entry.Date,
-			Duration:  &entry.Duration,
+			Minutes:   &entry.Minutes,
 			Note:      entry.Note,
 			ProjectId: entry.ProjectId,
 			ServiceId: entry.ServiceId,
@@ -196,12 +197,12 @@ var entriesEditCommand = &cobra.Command{
 			timeEntry.Date = &eDate
 		}
 
-		if editDuration != "" {
-			eDuration, err := time.ParseDuration(editDuration)
+		if editMinutes != "" {
+			eMinutes, err := datetime.ParseMinutes(editMinutes)
 			if err != nil {
 				return err
 			}
-			timeEntry.Duration = &eDuration
+			timeEntry.Minutes = &eMinutes
 		}
 
 		if editNote != "" {
