@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
+	"runtime"
 )
 
 type Config interface {
@@ -31,8 +32,29 @@ func NewConfig(fileName, filePath, fileType string) Config {
 	viper.AddConfigPath("$HOME")
 	viper.SetConfigName(fileName)
 	viper.SetConfigType(fileType)
-	ffp := fmt.Sprintf("%s/%s.%s", filePath, fileName, fileType)
+	ffp := fullConfigPath(filePath, fileName, fileType)
+	createConfigFileIfNonExistent(ffp)
+
 	return &config{fileName: fileName, filePath: filePath, fileType: fileType, fileFullPath: ffp}
+}
+
+func fullConfigPath(filePath string, fileName string, fileType string) string {
+	ffp := fmt.Sprintf("%s/%s.%s", filePath, fileName, fileType)
+	if runtime.GOOS == "windows" {
+		ffp = fmt.Sprintf("%s\\%s.%s", filePath, fileName, fileType)
+	}
+	return ffp
+}
+
+func createConfigFileIfNonExistent(ffp string) {
+	if _, err := os.Stat(ffp); os.IsExist(err) {
+		return
+	}
+
+	_, err := os.Create(ffp)
+	if err != nil {
+		panic(fmt.Sprintf("config file does not exists and wasn't able to create it: %s\n", err))
+	}
 }
 
 func (c *config) GetApiUrl() string {
