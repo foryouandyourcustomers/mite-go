@@ -20,17 +20,17 @@ var (
 )
 
 func main() {
-	homeDirectory, err := homedir.Dir()
-	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-	}
-	c := config.NewConfig(configFileName, homeDirectory, configType)
-	api := mite.NewApi(c.GetApiUrl(), c.GetApiKey())
 	v := cmd.Version{
 		Version: version,
 		Commit:  commit,
 		Date:    date,
 	}
+	homeDirectory, err := homedir.Dir()
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+	}
+	c := config.NewConfig(configFileName, homeDirectory, configType)
+	api := mite.NewApi(c.GetApiUrl(), c.GetApiKey(), v.Version)
 
 	err = cmd.HandleCommands(c, api, v)
 	if err != nil {
