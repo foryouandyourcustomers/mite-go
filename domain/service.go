@@ -5,3 +5,7 @@ type Service struct {
 	Name string
 	Note string
 }
+
+type ServiceApi interface {
+	Services() ([]*Service, error)
+}
