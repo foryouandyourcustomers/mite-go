@@ -20,7 +20,7 @@ func ParseMinutes(s string) (Minutes, error) {
 		return Minutes{}, err
 	}
 
-	return Minutes{duration: d.Truncate(time.Minute)}, nil
+	return Minutes{duration: d.Round(time.Minute)}, nil
 }
 
 func (m Minutes) Value() int {
