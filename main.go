@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-const configFileName = ".mite-go"
+const configFileName = ".mite"
 const configType = "toml"
 
 // these flags will be overwritten during the build process by goreleaser
