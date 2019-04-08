@@ -35,7 +35,7 @@ type ProjectApi interface {
 }
 
 type ServiceApi interface {
-	Services() ([]*Service, error)
+	Services() ([]*domain.Service, error)
 }
 
 type UserApi interface{}
