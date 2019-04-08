@@ -15,10 +15,10 @@ const userAgent = "mite-go/0.1 (+github.com/leanovate/mite-go)"
 type AccountApi interface{}
 
 type TimeEntryApi interface {
-	TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error)
-	TimeEntry(id string) (*TimeEntry, error)
-	CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
-	EditTimeEntry(id string, command *TimeEntryCommand) error
+	TimeEntries(query *domain.TimeEntryQuery) ([]*domain.TimeEntry, error)
+	TimeEntry(id string) (*domain.TimeEntry, error)
+	CreateTimeEntry(command *domain.TimeEntryCommand) (*domain.TimeEntry, error)
+	EditTimeEntry(id string, command *domain.TimeEntryCommand) error
 	DeleteTimeEntry(id string) error
 }
 

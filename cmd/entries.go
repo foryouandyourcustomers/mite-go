@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/cheynewallace/tabby"
 	"github.com/leanovate/mite-go/domain"
-	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
 	"strings"
 )
@@ -84,7 +83,7 @@ var entriesListCommand = &cobra.Command{
 			return err
 		}
 
-		entries, err := deps.miteApi.TimeEntries(&mite.TimeEntryQuery{
+		entries, err := deps.miteApi.TimeEntries(&domain.TimeEntryQuery{
 			To:        &to,
 			From:      &from,
 			Direction: direction,
@@ -98,7 +97,7 @@ var entriesListCommand = &cobra.Command{
 	},
 }
 
-func printEntries(entries []*mite.TimeEntry) {
+func printEntries(entries []*domain.TimeEntry) {
 	t := tabby.New()
 	t.AddHeader("id", "notes", "date", "time", "project", "service")
 	for _, entry := range entries {
@@ -130,7 +129,7 @@ var entriesCreateCommand = &cobra.Command{
 			return err
 		}
 
-		timeEntry := mite.TimeEntryCommand{
+		timeEntry := domain.TimeEntryCommand{
 			Date:      &cDate,
 			Minutes:   &cMinutes,
 			Note:      createNote,
@@ -143,7 +142,7 @@ var entriesCreateCommand = &cobra.Command{
 			return err
 		}
 
-		printEntries([]*mite.TimeEntry{entry})
+		printEntries([]*domain.TimeEntry{entry})
 		return nil
 	},
 }
@@ -180,7 +179,7 @@ var entriesEditCommand = &cobra.Command{
 		}
 
 		// use retrieved values as defaults
-		timeEntry := mite.TimeEntryCommand{
+		timeEntry := domain.TimeEntryCommand{
 			Date:      &entry.Date,
 			Minutes:   &entry.Minutes,
 			Note:      entry.Note,
@@ -233,7 +232,7 @@ var entriesEditCommand = &cobra.Command{
 			return err
 		}
 
-		printEntries([]*mite.TimeEntry{entry})
+		printEntries([]*domain.TimeEntry{entry})
 		return nil
 	},
 }

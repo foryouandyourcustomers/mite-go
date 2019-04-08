@@ -8,38 +8,7 @@ import (
 	"time"
 )
 
-type TimeEntry struct {
-	Id           string
-	Minutes      domain.Minutes
-	Date         domain.LocalDate
-	Note         string
-	Billable     bool
-	Locked       bool
-	Revenue      float64
-	HourlyRate   int
-	UserId       string
-	UserName     string
-	ProjectId    string
-	ProjectName  string
-	CustomerId   string
-	CustomerName string
-	ServiceId    string
-	ServiceName  string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-}
-
-type TimeEntryCommand struct {
-	Date      *domain.LocalDate
-	Minutes   *domain.Minutes
-	Note      string
-	UserId    string
-	ProjectId string
-	ServiceId string
-	Locked    bool
-}
-
-func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
+func fromCommand(c *domain.TimeEntryCommand) *timeEntryRequest {
 	r := &timeEntryRequest{}
 	if c.Date != nil {
 		r.TimeEntry.Date = c.Date.String()
@@ -56,13 +25,7 @@ func (c *TimeEntryCommand) toRequest() *timeEntryRequest {
 	return r
 }
 
-type TimeEntryQuery struct {
-	From      *domain.LocalDate
-	To        *domain.LocalDate
-	Direction string
-}
-
-func (q *TimeEntryQuery) toValues() url.Values {
+func fromQuery(q *domain.TimeEntryQuery) url.Values {
 	v := url.Values{}
 	if q != nil {
 		if q.From != nil {
@@ -114,13 +77,13 @@ type timeEntryResponse struct {
 	} `json:"time_entry"`
 }
 
-func (r *timeEntryResponse) toTimeEntry() *TimeEntry {
+func (r *timeEntryResponse) toTimeEntry() *domain.TimeEntry {
 	d, err := domain.ParseLocalDate(r.TimeEntry.Date)
 	if err != nil {
 		panic(err)
 	}
 
-	return &TimeEntry{
+	return &domain.TimeEntry{
 		Id:           strconv.Itoa(r.TimeEntry.Id),
 		Minutes:      domain.NewMinutes(r.TimeEntry.Minutes),
 		Date:         d,
@@ -142,14 +105,14 @@ func (r *timeEntryResponse) toTimeEntry() *TimeEntry {
 	}
 }
 
-func (a *api) TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error) {
+func (a *api) TimeEntries(query *domain.TimeEntryQuery) ([]*domain.TimeEntry, error) {
 	var ter []timeEntryResponse
-	err := a.getParametrized("time_entries.json", query.toValues(), &ter)
+	err := a.getParametrized("time_entries.json", fromQuery(query), &ter)
 	if err != nil {
 		return nil, err
 	}
 
-	var timeEntries []*TimeEntry
+	var timeEntries []*domain.TimeEntry
 	for _, te := range ter {
 		timeEntries = append(timeEntries, te.toTimeEntry())
 	}
@@ -157,7 +120,7 @@ func (a *api) TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error) {
 	return timeEntries, nil
 }
 
-func (a *api) TimeEntry(id string) (*TimeEntry, error) {
+func (a *api) TimeEntry(id string) (*domain.TimeEntry, error) {
 	ter := timeEntryResponse{}
 	err := a.get(fmt.Sprintf("/time_entries/%s.json", id), &ter)
 	if err != nil {
@@ -167,9 +130,9 @@ func (a *api) TimeEntry(id string) (*TimeEntry, error) {
 	return ter.toTimeEntry(), nil
 }
 
-func (a *api) CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error) {
+func (a *api) CreateTimeEntry(command *domain.TimeEntryCommand) (*domain.TimeEntry, error) {
 	ter := timeEntryResponse{}
-	err := a.post("/time_entries.json", command.toRequest(), &ter)
+	err := a.post("/time_entries.json", fromCommand(command), &ter)
 	if err != nil {
 		return nil, err
 	}
@@ -177,8 +140,8 @@ func (a *api) CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error) {
 	return ter.toTimeEntry(), nil
 }
 
-func (a *api) EditTimeEntry(id string, command *TimeEntryCommand) error {
-	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), command.toRequest(), nil)
+func (a *api) EditTimeEntry(id string, command *domain.TimeEntryCommand) error {
+	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), fromCommand(command), nil)
 }
 
 func (a *api) DeleteTimeEntry(id string) error {

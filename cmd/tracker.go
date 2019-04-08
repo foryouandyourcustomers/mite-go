@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/cheynewallace/tabby"
 	"github.com/leanovate/mite-go/domain"
-	"github.com/leanovate/mite-go/mite"
 	"github.com/spf13/cobra"
 )
 
@@ -104,7 +103,7 @@ var trackerStopCommand = &cobra.Command{
 func fetchLatestTimeEntryForToday() (string, error) {
 	today := domain.Today()
 
-	entries, err := deps.miteApi.TimeEntries(&mite.TimeEntryQuery{
+	entries, err := deps.miteApi.TimeEntries(&domain.TimeEntryQuery{
 		To:        &today,
 		From:      &today,
 		Direction: "desc",
