@@ -1,9 +1,31 @@
 package domain
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
+
+type TimeEntryId int
+
+func NewTimeEntryId(i int) TimeEntryId {
+	return TimeEntryId(i)
+}
+
+func ParseTimeEntryId(s string) (TimeEntryId, error) {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, err
+	}
+
+	return NewTimeEntryId(i), nil
+}
+
+func (i TimeEntryId) String() string {
+	return strconv.Itoa(int(i))
+}
 
 type TimeEntry struct {
-	Id           string
+	Id           TimeEntryId
 	Minutes      Minutes
 	Date         LocalDate
 	Note         string

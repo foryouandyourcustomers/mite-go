@@ -84,7 +84,7 @@ func (r *timeEntryResponse) toTimeEntry() *domain.TimeEntry {
 	}
 
 	return &domain.TimeEntry{
-		Id:           strconv.Itoa(r.TimeEntry.Id),
+		Id:           domain.NewTimeEntryId(r.TimeEntry.Id),
 		Minutes:      domain.NewMinutes(r.TimeEntry.Minutes),
 		Date:         d,
 		Note:         r.TimeEntry.Note,
@@ -120,7 +120,7 @@ func (a *api) TimeEntries(query *domain.TimeEntryQuery) ([]*domain.TimeEntry, er
 	return timeEntries, nil
 }
 
-func (a *api) TimeEntry(id string) (*domain.TimeEntry, error) {
+func (a *api) TimeEntry(id domain.TimeEntryId) (*domain.TimeEntry, error) {
 	ter := timeEntryResponse{}
 	err := a.get(fmt.Sprintf("/time_entries/%s.json", id), &ter)
 	if err != nil {
@@ -140,10 +140,10 @@ func (a *api) CreateTimeEntry(command *domain.TimeEntryCommand) (*domain.TimeEnt
 	return ter.toTimeEntry(), nil
 }
 
-func (a *api) EditTimeEntry(id string, command *domain.TimeEntryCommand) error {
+func (a *api) EditTimeEntry(id domain.TimeEntryId, command *domain.TimeEntryCommand) error {
 	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), fromCommand(command), nil)
 }
 
-func (a *api) DeleteTimeEntry(id string) error {
+func (a *api) DeleteTimeEntry(id domain.TimeEntryId) error {
 	return a.delete(fmt.Sprintf("/time_entries/%s.json", id), nil)
 }

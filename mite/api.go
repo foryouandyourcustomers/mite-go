@@ -16,16 +16,16 @@ type AccountApi interface{}
 
 type TimeEntryApi interface {
 	TimeEntries(query *domain.TimeEntryQuery) ([]*domain.TimeEntry, error)
-	TimeEntry(id string) (*domain.TimeEntry, error)
+	TimeEntry(id domain.TimeEntryId) (*domain.TimeEntry, error)
 	CreateTimeEntry(command *domain.TimeEntryCommand) (*domain.TimeEntry, error)
-	EditTimeEntry(id string, command *domain.TimeEntryCommand) error
-	DeleteTimeEntry(id string) error
+	EditTimeEntry(id domain.TimeEntryId, command *domain.TimeEntryCommand) error
+	DeleteTimeEntry(id domain.TimeEntryId) error
 }
 
 type TrackerApi interface {
 	Tracker() (*domain.TrackingTimeEntry, error)
-	StartTracker(id string) (*domain.TrackingTimeEntry, *domain.StoppedTimeEntry, error)
-	StopTracker(id string) (*domain.StoppedTimeEntry, error)
+	StartTracker(id domain.TimeEntryId) (*domain.TrackingTimeEntry, *domain.StoppedTimeEntry, error)
+	StopTracker(id domain.TimeEntryId) (*domain.StoppedTimeEntry, error)
 }
 
 type CustomerApi interface{}

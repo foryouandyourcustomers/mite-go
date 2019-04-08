@@ -173,13 +173,18 @@ var entriesEditCommand = &cobra.Command{
 	Use:   "edit",
 	Short: "edits a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		entry, err := deps.miteApi.TimeEntry(editTimeEntryId)
+		entryId, err := domain.ParseTimeEntryId(editTimeEntryId)
+		if err != nil {
+			return err
+		}
+
+		entry, err := deps.miteApi.TimeEntry(entryId)
 		if err != nil {
 			return err
 		}
 
 		// use retrieved values as defaults
-		timeEntry := domain.TimeEntryCommand{
+		command := domain.TimeEntryCommand{
 			Date:      &entry.Date,
 			Minutes:   &entry.Minutes,
 			Note:      entry.Note,
@@ -193,7 +198,7 @@ var entriesEditCommand = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			timeEntry.Date = &eDate
+			command.Date = &eDate
 		}
 
 		if editMinutes != "" {
@@ -201,33 +206,33 @@ var entriesEditCommand = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			timeEntry.Minutes = &eMinutes
+			command.Minutes = &eMinutes
 		}
 
 		if editNote != "" {
-			timeEntry.Note = editNote
+			command.Note = editNote
 		}
 
 		if editActivity != "" {
 			activity := deps.conf.GetActivity(editActivity)
-			timeEntry.ProjectId = activity.ProjectId
-			timeEntry.ServiceId = activity.ServiceId
+			command.ProjectId = activity.ProjectId
+			command.ServiceId = activity.ServiceId
 		}
 
-		if editProjectId != "" && timeEntry.ProjectId == "" {
-			timeEntry.ProjectId = editProjectId
+		if editProjectId != "" && command.ProjectId == "" {
+			command.ProjectId = editProjectId
 		}
 
-		if editServiceId != "" && timeEntry.ProjectId == "" {
-			timeEntry.ServiceId = editServiceId
+		if editServiceId != "" && command.ProjectId == "" {
+			command.ServiceId = editServiceId
 		}
 
-		err = deps.miteApi.EditTimeEntry(editTimeEntryId, &timeEntry)
+		err = deps.miteApi.EditTimeEntry(entryId, &command)
 		if err != nil {
 			return err
 		}
 
-		entry, err = deps.miteApi.TimeEntry(editTimeEntryId)
+		entry, err = deps.miteApi.TimeEntry(entryId)
 		if err != nil {
 			return err
 		}
@@ -241,6 +246,11 @@ var entriesDeleteCommand = &cobra.Command{
 	Use:   "delete",
 	Short: "deletes a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return deps.miteApi.DeleteTimeEntry(deleteTimeEntryId)
+		entryId, err := domain.ParseTimeEntryId(editTimeEntryId)
+		if err != nil {
+			return err
+		}
+
+		return deps.miteApi.DeleteTimeEntry(entryId)
 	},
 }

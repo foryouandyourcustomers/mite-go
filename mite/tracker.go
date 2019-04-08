@@ -3,7 +3,6 @@ package mite
 import (
 	"fmt"
 	"github.com/leanovate/mite-go/domain"
-	"strconv"
 	"time"
 )
 
@@ -27,7 +26,7 @@ func (r *trackerResponse) toTrackingTimeEntry() *domain.TrackingTimeEntry {
 	}
 
 	return &domain.TrackingTimeEntry{
-		Id:      strconv.Itoa(r.Tracker.TrackingTimeEntry.Id),
+		Id:      domain.NewTimeEntryId(r.Tracker.TrackingTimeEntry.Id),
 		Minutes: domain.NewMinutes(r.Tracker.TrackingTimeEntry.Minutes),
 		Since:   r.Tracker.TrackingTimeEntry.Since,
 	}
@@ -39,7 +38,7 @@ func (r *trackerResponse) toStoppedTimeEntry() *domain.StoppedTimeEntry {
 	}
 
 	return &domain.StoppedTimeEntry{
-		Id:      strconv.Itoa(r.Tracker.StoppedTimeEntry.Id),
+		Id:      domain.NewTimeEntryId(r.Tracker.StoppedTimeEntry.Id),
 		Minutes: domain.NewMinutes(r.Tracker.StoppedTimeEntry.Minutes),
 	}
 }
@@ -54,7 +53,7 @@ func (a *api) Tracker() (*domain.TrackingTimeEntry, error) {
 	return tr.toTrackingTimeEntry(), nil
 }
 
-func (a *api) StartTracker(id string) (*domain.TrackingTimeEntry, *domain.StoppedTimeEntry, error) {
+func (a *api) StartTracker(id domain.TimeEntryId) (*domain.TrackingTimeEntry, *domain.StoppedTimeEntry, error) {
 	tr := &trackerResponse{}
 	err := a.patch(fmt.Sprintf("/tracker/%s.json", id), nil, tr)
 	if err != nil {
@@ -64,7 +63,7 @@ func (a *api) StartTracker(id string) (*domain.TrackingTimeEntry, *domain.Stoppe
 	return tr.toTrackingTimeEntry(), tr.toStoppedTimeEntry(), nil
 }
 
-func (a *api) StopTracker(id string) (*domain.StoppedTimeEntry, error) {
+func (a *api) StopTracker(id domain.TimeEntryId) (*domain.StoppedTimeEntry, error) {
 	tr := &trackerResponse{}
 	err := a.delete(fmt.Sprintf("/tracker/%s.json", id), tr)
 	if err != nil {

@@ -3,12 +3,12 @@ package domain
 import "time"
 
 type TrackingTimeEntry struct {
-	Id      string
+	Id      TimeEntryId
 	Minutes Minutes
 	Since   time.Time
 }
 
 type StoppedTimeEntry struct {
-	Id      string
+	Id      TimeEntryId
 	Minutes Minutes
 }

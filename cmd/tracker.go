@@ -51,14 +51,17 @@ var trackerStartCommand = &cobra.Command{
 	Use:   "start",
 	Short: "starts the time tracker for a time entry",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		var entryId domain.TimeEntryId
 		if trackerTimeEntryId == "" {
-			trackerTimeEntryId, err = fetchLatestTimeEntryForToday()
-			if err != nil {
-				return err
-			}
+			entryId, err = fetchLatestTimeEntryForToday()
+		} else {
+			entryId, err = domain.ParseTimeEntryId(trackerTimeEntryId)
+		}
+		if err != nil {
+			return err
 		}
 
-		tracking, stopped, err := deps.miteApi.StartTracker(trackerTimeEntryId)
+		tracking, stopped, err := deps.miteApi.StartTracker(entryId)
 		if err != nil {
 			return err
 		}
@@ -79,14 +82,17 @@ var trackerStopCommand = &cobra.Command{
 	Use:   "stop",
 	Short: "stops the time tracker for a time entry",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		var entryId domain.TimeEntryId
 		if trackerTimeEntryId == "" {
-			trackerTimeEntryId, err = fetchLatestTimeEntryForToday()
-			if err != nil {
-				return err
-			}
+			entryId, err = fetchLatestTimeEntryForToday()
+		} else {
+			entryId, err = domain.ParseTimeEntryId(trackerTimeEntryId)
+		}
+		if err != nil {
+			return err
 		}
 
-		stopped, err := deps.miteApi.StopTracker(trackerTimeEntryId)
+		stopped, err := deps.miteApi.StopTracker(entryId)
 		if err != nil {
 			return err
 		}
@@ -100,7 +106,7 @@ var trackerStopCommand = &cobra.Command{
 	},
 }
 
-func fetchLatestTimeEntryForToday() (string, error) {
+func fetchLatestTimeEntryForToday() (domain.TimeEntryId, error) {
 	today := domain.Today()
 
 	entries, err := deps.miteApi.TimeEntries(&domain.TimeEntryQuery{
@@ -109,11 +115,11 @@ func fetchLatestTimeEntryForToday() (string, error) {
 		Direction: "desc",
 	})
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	if len(entries) == 0 {
-		return "", errors.New("no time entries for today found")
+		return 0, errors.New("no time entries for today found")
 	}
 
 	return entries[0].Id, nil
