@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
@@ -47,13 +48,11 @@ func fullConfigPath(filePath string, fileName string, fileType string) string {
 }
 
 func createConfigFileIfNonExistent(ffp string) {
-	if _, err := os.Stat(ffp); os.IsExist(err) {
-		return
-	}
-
-	_, err := os.Create(ffp)
-	if err != nil {
-		panic(fmt.Sprintf("config file does not exists and wasn't able to create it: %s\n", err))
+	if _, err := os.Stat(ffp); os.IsNotExist(err) {
+		_, err := os.Create(ffp)
+		if err != nil {
+			panic(fmt.Sprintf("config file does not exists and wasn't able to create it: %s\n", err))
+		}
 	}
 }
 
@@ -100,10 +99,19 @@ func (c *config) Set(key string, value string) {
 }
 
 func (c *config) PrintAll() {
-	err := viper.ReadInConfig()
+	file, err := os.Open(c.fileFullPath)
 	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
+		panic(err)
 	}
-	wholeConfig := viper.AllSettings()
-	fmt.Printf("%v\n", wholeConfig)
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+	}
+
+	err = scanner.Err()
+	if err != nil {
+		panic(err)
+	}
 }
