@@ -12,42 +12,14 @@ import (
 const contentType = "application/json"
 const userAgentTemplate = "mite-go/%s (+github.com/leanovate/mite-go)"
 
-type AccountApi interface{}
-
-type TimeEntryApi interface {
-	TimeEntries(query *domain.TimeEntryQuery) ([]*domain.TimeEntry, error)
-	TimeEntry(id domain.TimeEntryId) (*domain.TimeEntry, error)
-	CreateTimeEntry(command *domain.TimeEntryCommand) (*domain.TimeEntry, error)
-	EditTimeEntry(id domain.TimeEntryId, command *domain.TimeEntryCommand) error
-	DeleteTimeEntry(id domain.TimeEntryId) error
-}
-
-type TrackerApi interface {
-	Tracker() (*domain.TrackingTimeEntry, error)
-	StartTracker(id domain.TimeEntryId) (*domain.TrackingTimeEntry, *domain.StoppedTimeEntry, error)
-	StopTracker(id domain.TimeEntryId) (*domain.StoppedTimeEntry, error)
-}
-
-type CustomerApi interface{}
-
-type ProjectApi interface {
-	Projects() ([]*domain.Project, error)
-}
-
-type ServiceApi interface {
-	Services() ([]*domain.Service, error)
-}
-
-type UserApi interface{}
-
 type Api interface {
-	AccountApi
-	TimeEntryApi
-	TrackerApi
-	CustomerApi
-	ProjectApi
-	ServiceApi
-	UserApi
+	domain.AccountApi
+	domain.TimeEntryApi
+	domain.TrackerApi
+	domain.CustomerApi
+	domain.ProjectApi
+	domain.ServiceApi
+	domain.UserApi
 }
 
 type api struct {

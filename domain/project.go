@@ -5,3 +5,7 @@ type Project struct {
 	Name string
 	Note string
 }
+
+type ProjectApi interface {
+	Projects() ([]*Project, error)
+}

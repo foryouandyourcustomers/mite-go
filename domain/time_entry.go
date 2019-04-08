@@ -60,3 +60,11 @@ type TimeEntryQuery struct {
 	To        *LocalDate
 	Direction string
 }
+
+type TimeEntryApi interface {
+	TimeEntries(query *TimeEntryQuery) ([]*TimeEntry, error)
+	TimeEntry(id TimeEntryId) (*TimeEntry, error)
+	CreateTimeEntry(command *TimeEntryCommand) (*TimeEntry, error)
+	EditTimeEntry(id TimeEntryId, command *TimeEntryCommand) error
+	DeleteTimeEntry(id TimeEntryId) error
+}
