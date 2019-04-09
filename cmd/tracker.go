@@ -30,7 +30,7 @@ var trackerStatusCommand = &cobra.Command{
 	Use:   "status",
 	Short: "shows the status of the time tracker",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		tracking, err := deps.miteApi.Tracker()
+		tracking, err := application.MiteApi.Tracker()
 		if err != nil {
 			return err
 		}
@@ -61,7 +61,7 @@ var trackerStartCommand = &cobra.Command{
 			return err
 		}
 
-		tracking, stopped, err := deps.miteApi.StartTracker(entryId)
+		tracking, stopped, err := application.MiteApi.StartTracker(entryId)
 		if err != nil {
 			return err
 		}
@@ -92,7 +92,7 @@ var trackerStopCommand = &cobra.Command{
 			return err
 		}
 
-		stopped, err := deps.miteApi.StopTracker(entryId)
+		stopped, err := application.MiteApi.StopTracker(entryId)
 		if err != nil {
 			return err
 		}
@@ -109,7 +109,7 @@ var trackerStopCommand = &cobra.Command{
 func fetchLatestTimeEntryForToday() (domain.TimeEntryId, error) {
 	today := domain.Today()
 
-	entries, err := deps.miteApi.TimeEntries(&domain.TimeEntryQuery{
+	entries, err := application.MiteApi.TimeEntries(&domain.TimeEntryQuery{
 		To:        &today,
 		From:      &today,
 		Direction: "desc",

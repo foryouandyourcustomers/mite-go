@@ -20,7 +20,7 @@ var listServicesCommand = &cobra.Command{
 	Use:   "list",
 	Short: "list services",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		services, err := deps.miteApi.Services()
+		services, err := application.MiteApi.Services()
 		if err != nil {
 			return err
 		}

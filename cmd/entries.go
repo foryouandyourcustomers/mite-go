@@ -83,7 +83,7 @@ var entriesListCommand = &cobra.Command{
 			return err
 		}
 
-		entries, err := deps.miteApi.TimeEntries(&domain.TimeEntryQuery{
+		entries, err := application.MiteApi.TimeEntries(&domain.TimeEntryQuery{
 			To:        &to,
 			From:      &from,
 			Direction: direction,
@@ -144,7 +144,7 @@ var entriesCreateCommand = &cobra.Command{
 			ServiceId: cServiceId,
 		}
 
-		entry, err := deps.miteApi.CreateTimeEntry(&timeEntry)
+		entry, err := application.MiteApi.CreateTimeEntry(&timeEntry)
 		if err != nil {
 			return err
 		}
@@ -156,21 +156,21 @@ var entriesCreateCommand = &cobra.Command{
 
 func projectAndServiceId() (projectId, servicesId string) {
 	if createProjectId == "" && createActivity != "" {
-		activity := deps.conf.GetActivity(createActivity)
+		activity := application.Conf.GetActivity(createActivity)
 		createProjectId = activity.ProjectId
 	}
 
 	if createServiceId == "" && createActivity != "" {
-		activity := deps.conf.GetActivity(createActivity)
+		activity := application.Conf.GetActivity(createActivity)
 		createServiceId = activity.ServiceId
 	}
 
 	if createProjectId == "" {
-		createProjectId = deps.conf.Get("projectId")
+		createProjectId = application.Conf.Get("projectId")
 	}
 
 	if createServiceId == "" {
-		createServiceId = deps.conf.Get("serviceId")
+		createServiceId = application.Conf.Get("serviceId")
 	}
 
 	return projectId, servicesId
@@ -185,7 +185,7 @@ var entriesEditCommand = &cobra.Command{
 			return err
 		}
 
-		entry, err := deps.miteApi.TimeEntry(entryId)
+		entry, err := application.MiteApi.TimeEntry(entryId)
 		if err != nil {
 			return err
 		}
@@ -221,7 +221,7 @@ var entriesEditCommand = &cobra.Command{
 		}
 
 		if editActivity != "" {
-			activity := deps.conf.GetActivity(editActivity)
+			activity := application.Conf.GetActivity(editActivity)
 
 			projectId, err := domain.ParseProjectId(activity.ProjectId)
 			if err != nil {
@@ -252,12 +252,12 @@ var entriesEditCommand = &cobra.Command{
 			command.ServiceId = serviceId
 		}
 
-		err = deps.miteApi.EditTimeEntry(entryId, &command)
+		err = application.MiteApi.EditTimeEntry(entryId, &command)
 		if err != nil {
 			return err
 		}
 
-		entry, err = deps.miteApi.TimeEntry(entryId)
+		entry, err = application.MiteApi.TimeEntry(entryId)
 		if err != nil {
 			return err
 		}
@@ -276,6 +276,6 @@ var entriesDeleteCommand = &cobra.Command{
 			return err
 		}
 
-		return deps.miteApi.DeleteTimeEntry(entryId)
+		return application.MiteApi.DeleteTimeEntry(entryId)
 	},
 }

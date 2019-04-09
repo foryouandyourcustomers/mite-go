@@ -16,7 +16,7 @@ var configCommand = &cobra.Command{
 	Short: "sets or reads a config property",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			deps.conf.PrintAll()
+			application.Conf.PrintAll()
 			return nil
 		}
 
@@ -32,10 +32,10 @@ var configCommand = &cobra.Command{
 			configKeyValue := strings.Split(firstArgument, "=")
 			configKey := configKeyValue[0]
 			configValue := configKeyValue[1]
-			deps.conf.Set(configKey, configValue)
+			application.Conf.Set(configKey, configValue)
 			return nil
 		}
-		fmt.Println(deps.conf.Get(configKey))
+		fmt.Println(application.Conf.Get(configKey))
 		return nil
 	},
 }

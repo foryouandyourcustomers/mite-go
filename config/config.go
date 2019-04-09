@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
-	"runtime"
 )
 
 type Config interface {
@@ -18,9 +17,6 @@ type Config interface {
 }
 
 type config struct {
-	fileName     string
-	filePath     string
-	fileType     string
 	fileFullPath string
 }
 
@@ -29,22 +25,11 @@ type Activity struct {
 	ServiceId string
 }
 
-func NewConfig(fileName, filePath, fileType string) Config {
-	viper.AddConfigPath("$HOME")
-	viper.SetConfigName(fileName)
-	viper.SetConfigType(fileType)
-	ffp := fullConfigPath(filePath, fileName, fileType)
-	createConfigFileIfNonExistent(ffp)
+func NewConfig(fullPath string) Config {
+	createConfigFileIfNonExistent(fullPath)
+	viper.SetConfigFile(fullPath)
 
-	return &config{fileName: fileName, filePath: filePath, fileType: fileType, fileFullPath: ffp}
-}
-
-func fullConfigPath(filePath string, fileName string, fileType string) string {
-	ffp := fmt.Sprintf("%s/%s.%s", filePath, fileName, fileType)
-	if runtime.GOOS == "windows" {
-		ffp = fmt.Sprintf("%s\\%s.%s", filePath, fileName, fileType)
-	}
-	return ffp
+	return &config{fileFullPath: fullPath}
 }
 
 func createConfigFileIfNonExistent(ffp string) {
@@ -103,7 +88,12 @@ func (c *config) PrintAll() {
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {

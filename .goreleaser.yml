@@ -12,6 +12,9 @@ builds:
       - windows
     goarch:
       - amd64
+    ldflags:
+      - -s -w -X github.com/leanovate/mite-go/app.version={{.Version}} -X github.com/leanovate/mite-go/app.commit={{.Commit}} -X github.com/leanovate/mite-go/app.date={{.Date}}
+      - ./usemsan=-msan
 archive:
   replacements:
     darwin: Darwin

@@ -20,7 +20,7 @@ var listProjectsCommand = &cobra.Command{
 	Use:   "list",
 	Short: "list projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		projects, err := deps.miteApi.Projects()
+		projects, err := application.MiteApi.Projects()
 		if err != nil {
 			return err
 		}
