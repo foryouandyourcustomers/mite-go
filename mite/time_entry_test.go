@@ -260,9 +260,7 @@ func TestApi_DeleteTimeEntry(t *testing.T) {
 		rec.miteKey = r.Header.Get("X-MiteApiKey")
 		rec.userAgent = r.Header.Get("User-Agent")
 
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
-		_, _ = w.Write([]byte(timeEntryResponse))
 	}))
 
 	defer srv.Close()
