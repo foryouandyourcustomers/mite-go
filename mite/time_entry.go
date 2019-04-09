@@ -99,8 +99,8 @@ func (r *timeEntryResponse) toTimeEntry() *domain.TimeEntry {
 		CustomerName: r.TimeEntry.CustomerName,
 		ServiceId:    domain.NewServiceId(r.TimeEntry.ServiceId),
 		ServiceName:  r.TimeEntry.ServiceName,
-		CreatedAt:    r.TimeEntry.CreatedAt,
-		UpdatedAt:    r.TimeEntry.UpdatedAt,
+		CreatedAt:    r.TimeEntry.CreatedAt.UTC(),
+		UpdatedAt:    r.TimeEntry.UpdatedAt.UTC(),
 	}
 }
 
@@ -121,7 +121,7 @@ func (a *api) TimeEntries(query *domain.TimeEntryQuery) ([]*domain.TimeEntry, er
 
 func (a *api) TimeEntry(id domain.TimeEntryId) (*domain.TimeEntry, error) {
 	ter := timeEntryResponse{}
-	err := a.get(fmt.Sprintf("/time_entries/%s.json", id), &ter)
+	err := a.get(fmt.Sprintf("time_entries/%s.json", id), &ter)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func (a *api) TimeEntry(id domain.TimeEntryId) (*domain.TimeEntry, error) {
 
 func (a *api) CreateTimeEntry(command *domain.TimeEntryCommand) (*domain.TimeEntry, error) {
 	ter := timeEntryResponse{}
-	err := a.post("/time_entries.json", fromCommand(command), &ter)
+	err := a.post("time_entries.json", fromCommand(command), &ter)
 	if err != nil {
 		return nil, err
 	}
@@ -140,9 +140,9 @@ func (a *api) CreateTimeEntry(command *domain.TimeEntryCommand) (*domain.TimeEnt
 }
 
 func (a *api) EditTimeEntry(id domain.TimeEntryId, command *domain.TimeEntryCommand) error {
-	return a.patch(fmt.Sprintf("/time_entries/%s.json", id), fromCommand(command), nil)
+	return a.patch(fmt.Sprintf("time_entries/%s.json", id), fromCommand(command), nil)
 }
 
 func (a *api) DeleteTimeEntry(id domain.TimeEntryId) error {
-	return a.delete(fmt.Sprintf("/time_entries/%s.json", id), nil)
+	return a.delete(fmt.Sprintf("time_entries/%s.json", id), nil)
 }
