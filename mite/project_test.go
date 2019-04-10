@@ -45,17 +45,11 @@ var projectObject = domain.Project{
 
 func TestApi_Projects(t *testing.T) {
 	// given
-	rec := recorder{}
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rec.method = r.Method
-		rec.url = r.RequestURI
-		rec.miteKey = r.Header.Get("X-MiteApiKey")
-		rec.userAgent = r.Header.Get("User-Agent")
-
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		_, _ = w.Write([]byte(fmt.Sprintf("[%s]", projectResponse)))
-	}))
+	rec := NewRecorder().
+		ResponseContentType("application/json; charset=utf-8").
+		ResponseBody(fmt.Sprintf("[%s]", projectResponse)).
+		ResponseStatus(200)
+	srv := httptest.NewServer(rec.Handler())
 
 	defer srv.Close()
 
@@ -69,8 +63,10 @@ func TestApi_Projects(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, []*domain.Project{&projectObject}, projects)
 
-	assert.Equal(t, http.MethodGet, rec.method)
-	assert.Equal(t, "/projects.json", rec.url)
-	assert.Equal(t, testApiKey, rec.miteKey)
-	assert.Equal(t, testUserAgent, rec.userAgent)
+	assert.Equal(t, http.MethodGet, rec.RequestMethod())
+	assert.Equal(t, "/projects.json", rec.RequestURI())
+	assert.Empty(t, rec.RequestContentType())
+	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
+	assert.Equal(t, testApiKey, rec.RequestMiteKey())
+	assert.Empty(t, rec.RequestBody())
 }

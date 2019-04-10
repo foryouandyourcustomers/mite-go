@@ -68,7 +68,12 @@ func (a *api) get(resource string, query url.Values, result interface{}) error {
 }
 
 func (a *api) post(resource string, body interface{}, result interface{}) error {
-	b, err := json.Marshal(body)
+	v := body
+	if v == nil {
+		v = struct{}{}
+	}
+
+	b, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
@@ -100,7 +105,12 @@ func (a *api) post(resource string, body interface{}, result interface{}) error 
 }
 
 func (a *api) patch(resource string, body interface{}, result interface{}) error {
-	b, err := json.Marshal(body)
+	v := body
+	if v == nil {
+		v = struct{}{}
+	}
+
+	b, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}

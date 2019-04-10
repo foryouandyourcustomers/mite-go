@@ -5,7 +5,6 @@ import (
 	"github.com/leanovate/mite-go/domain"
 	"github.com/leanovate/mite-go/mite"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -68,17 +67,11 @@ var timeEntryObject = domain.TimeEntry{
 
 func TestApi_TimeEntries(t *testing.T) {
 	// given
-	rec := recorder{}
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rec.method = r.Method
-		rec.url = r.RequestURI
-		rec.miteKey = r.Header.Get("X-MiteApiKey")
-		rec.userAgent = r.Header.Get("User-Agent")
-
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		_, _ = w.Write([]byte(fmt.Sprintf("[%s]", timeEntryResponse)))
-	}))
+	rec := NewRecorder().
+		ResponseContentType("application/json; charset=utf-8").
+		ResponseBody(fmt.Sprintf("[%s]", timeEntryResponse)).
+		ResponseStatus(200)
+	srv := httptest.NewServer(rec.Handler())
 
 	defer srv.Close()
 
@@ -92,25 +85,21 @@ func TestApi_TimeEntries(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, []*domain.TimeEntry{&timeEntryObject}, timeEntries)
 
-	assert.Equal(t, http.MethodGet, rec.method)
-	assert.Equal(t, "/time_entries.json", rec.url)
-	assert.Equal(t, testApiKey, rec.miteKey)
-	assert.Equal(t, testUserAgent, rec.userAgent)
+	assert.Equal(t, http.MethodGet, rec.RequestMethod())
+	assert.Equal(t, "/time_entries.json", rec.RequestURI())
+	assert.Empty(t, rec.RequestContentType())
+	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
+	assert.Equal(t, testApiKey, rec.RequestMiteKey())
+	assert.Empty(t, rec.RequestBody())
 }
 
 func TestApi_TimeEntries_WithQuery(t *testing.T) {
 	// given
-	rec := recorder{}
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rec.method = r.Method
-		rec.url = r.RequestURI
-		rec.miteKey = r.Header.Get("X-MiteApiKey")
-		rec.userAgent = r.Header.Get("User-Agent")
-
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		_, _ = w.Write([]byte(fmt.Sprintf("[%s]", timeEntryResponse)))
-	}))
+	rec := NewRecorder().
+		ResponseContentType("application/json; charset=utf-8").
+		ResponseBody(fmt.Sprintf("[%s]", timeEntryResponse)).
+		ResponseStatus(200)
+	srv := httptest.NewServer(rec.Handler())
 
 	defer srv.Close()
 
@@ -130,25 +119,21 @@ func TestApi_TimeEntries_WithQuery(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, []*domain.TimeEntry{&timeEntryObject}, timeEntries)
 
-	assert.Equal(t, http.MethodGet, rec.method)
-	assert.Equal(t, fmt.Sprintf("/time_entries.json?direction=%s&from=%s&to=%s", query.Direction, query.From, query.To), rec.url)
-	assert.Equal(t, testApiKey, rec.miteKey)
-	assert.Equal(t, testUserAgent, rec.userAgent)
+	assert.Equal(t, http.MethodGet, rec.RequestMethod())
+	assert.Equal(t, fmt.Sprintf("/time_entries.json?direction=%s&from=%s&to=%s", query.Direction, query.From, query.To), rec.RequestURI())
+	assert.Empty(t, rec.RequestContentType())
+	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
+	assert.Equal(t, testApiKey, rec.RequestMiteKey())
+	assert.Empty(t, rec.RequestBody())
 }
 
 func TestApi_TimeEntry(t *testing.T) {
 	// given
-	rec := recorder{}
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rec.method = r.Method
-		rec.url = r.RequestURI
-		rec.miteKey = r.Header.Get("X-MiteApiKey")
-		rec.userAgent = r.Header.Get("User-Agent")
-
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		_, _ = w.Write([]byte(timeEntryResponse))
-	}))
+	rec := NewRecorder().
+		ResponseContentType("application/json; charset=utf-8").
+		ResponseBody(timeEntryResponse).
+		ResponseStatus(200)
+	srv := httptest.NewServer(rec.Handler())
 
 	defer srv.Close()
 
@@ -162,30 +147,22 @@ func TestApi_TimeEntry(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, &timeEntryObject, timeEntry)
 
-	assert.Equal(t, http.MethodGet, rec.method)
-	assert.Equal(t, fmt.Sprintf("/time_entries/%s.json", timeEntryObject.Id), rec.url)
-	assert.Equal(t, testApiKey, rec.miteKey)
-	assert.Equal(t, testUserAgent, rec.userAgent)
+	assert.Equal(t, http.MethodGet, rec.RequestMethod())
+	assert.Equal(t, fmt.Sprintf("/time_entries/%s.json", timeEntryObject.Id), rec.RequestURI())
+	assert.Empty(t, rec.RequestContentType())
+	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
+	assert.Equal(t, testApiKey, rec.RequestMiteKey())
+	assert.Empty(t, rec.RequestBody())
 }
 
 func TestApi_CreateTimeEntry(t *testing.T) {
 	// given
-	rec := recorder{}
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b, _ := ioutil.ReadAll(r.Body)
-
-		rec.body = b
-		rec.method = r.Method
-		rec.url = r.RequestURI
-		rec.contentType = r.Header.Get("Content-Type")
-		rec.miteKey = r.Header.Get("X-MiteApiKey")
-		rec.userAgent = r.Header.Get("User-Agent")
-
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		w.Header().Add("Location", fmt.Sprintf("/time_entries/%s.json", timeEntryObject.Id))
-		w.WriteHeader(201)
-		_, _ = w.Write([]byte(timeEntryResponse))
-	}))
+	rec := NewRecorder().
+		ResponseContentType("application/json; charset=utf-8").
+		ResponseLocation(fmt.Sprintf("/time_entries/%s.json", timeEntryObject.Id)).
+		ResponseBody(timeEntryResponse).
+		ResponseStatus(201)
+	srv := httptest.NewServer(rec.Handler())
 
 	defer srv.Close()
 
@@ -206,30 +183,18 @@ func TestApi_CreateTimeEntry(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, &timeEntryObject, timeEntry)
 
-	assert.Equal(t, timeEntryRequest, string(prettifyJson(rec.body, "  ")))
-	assert.Equal(t, http.MethodPost, rec.method)
-	assert.Equal(t, "/time_entries.json", rec.url)
-	assert.Equal(t, "application/json", rec.contentType)
-	assert.Equal(t, testApiKey, rec.miteKey)
-	assert.Equal(t, testUserAgent, rec.userAgent)
+	assert.Equal(t, http.MethodPost, rec.RequestMethod())
+	assert.Equal(t, "/time_entries.json", rec.RequestURI())
+	assert.Equal(t, "application/json", rec.RequestContentType())
+	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
+	assert.Equal(t, testApiKey, rec.RequestMiteKey())
+	assert.Equal(t, timeEntryRequest, string(prettifyJson(rec.RequestBody(), "  ")))
 }
 
 func TestApi_EditTimeEntry(t *testing.T) {
 	// given
-	rec := recorder{}
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b, _ := ioutil.ReadAll(r.Body)
-
-		rec.body = b
-		rec.method = r.Method
-		rec.url = r.RequestURI
-		rec.contentType = r.Header.Get("Content-Type")
-
-		rec.miteKey = r.Header.Get("X-MiteApiKey")
-		rec.userAgent = r.Header.Get("User-Agent")
-
-		w.WriteHeader(200)
-	}))
+	rec := NewRecorder().ResponseStatus(200)
+	srv := httptest.NewServer(rec.Handler())
 
 	defer srv.Close()
 
@@ -249,24 +214,18 @@ func TestApi_EditTimeEntry(t *testing.T) {
 	// then
 	assert.Nil(t, err)
 
-	assert.Equal(t, timeEntryRequest, string(prettifyJson(rec.body, "  ")))
-	assert.Equal(t, http.MethodPatch, rec.method)
-	assert.Equal(t, fmt.Sprintf("/time_entries/%s.json", timeEntryObject.Id), rec.url)
-	assert.Equal(t, testApiKey, rec.miteKey)
-	assert.Equal(t, testUserAgent, rec.userAgent)
+	assert.Equal(t, http.MethodPatch, rec.RequestMethod())
+	assert.Equal(t, fmt.Sprintf("/time_entries/%s.json", timeEntryObject.Id), rec.RequestURI())
+	assert.Equal(t, "application/json", rec.RequestContentType())
+	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
+	assert.Equal(t, testApiKey, rec.RequestMiteKey())
+	assert.Equal(t, timeEntryRequest, string(prettifyJson(rec.RequestBody(), "  ")))
 }
 
 func TestApi_DeleteTimeEntry(t *testing.T) {
 	// given
-	rec := recorder{}
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rec.method = r.Method
-		rec.url = r.RequestURI
-		rec.miteKey = r.Header.Get("X-MiteApiKey")
-		rec.userAgent = r.Header.Get("User-Agent")
-
-		w.WriteHeader(200)
-	}))
+	rec := NewRecorder().ResponseStatus(200)
+	srv := httptest.NewServer(rec.Handler())
 
 	defer srv.Close()
 
@@ -279,8 +238,10 @@ func TestApi_DeleteTimeEntry(t *testing.T) {
 	// then
 	assert.Nil(t, err)
 
-	assert.Equal(t, http.MethodDelete, rec.method)
-	assert.Equal(t, fmt.Sprintf("/time_entries/%s.json", timeEntryObject.Id), rec.url)
-	assert.Equal(t, testApiKey, rec.miteKey)
-	assert.Equal(t, testUserAgent, rec.userAgent)
+	assert.Equal(t, http.MethodDelete, rec.RequestMethod())
+	assert.Equal(t, fmt.Sprintf("/time_entries/%s.json", timeEntryObject.Id), rec.RequestURI())
+	assert.Empty(t, rec.RequestContentType())
+	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
+	assert.Equal(t, testApiKey, rec.RequestMiteKey())
+	assert.Empty(t, rec.RequestBody())
 }
