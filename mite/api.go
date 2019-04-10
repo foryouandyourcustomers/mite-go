@@ -29,9 +29,9 @@ type api struct {
 	client    *http.Client
 }
 
-func NewApi(base string, key string, version string) Api {
+func NewApi(base string, key string, version string) (Api, error) {
 	ua := fmt.Sprintf(userAgentTemplate, version)
-	return &api{base: base, key: key, userAgent: ua, client: &http.Client{}}
+	return &api{base: base, key: key, userAgent: ua, client: &http.Client{}}, nil
 }
 
 func (a *api) get(resource string, result interface{}) error {
