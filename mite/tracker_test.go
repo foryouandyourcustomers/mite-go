@@ -139,7 +139,7 @@ func TestApi_StartTracker(t *testing.T) {
 	assert.Equal(t, "application/json", rec.RequestContentType())
 	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
 	assert.Equal(t, testApiKey, rec.RequestMiteKey())
-	assert.Equal(t, "{}", string(prettifyJson(rec.RequestBody(), "")))
+	assert.Equal(t, `{}`, rec.RequestBodyCanonical())
 }
 
 func TestApi_StartTracker_Running(t *testing.T) {
@@ -168,7 +168,7 @@ func TestApi_StartTracker_Running(t *testing.T) {
 	assert.Equal(t, "application/json", rec.RequestContentType())
 	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
 	assert.Equal(t, testApiKey, rec.RequestMiteKey())
-	assert.Equal(t, "{}", string(prettifyJson(rec.RequestBody(), "")))
+	assert.Equal(t, `{}`, rec.RequestBodyCanonical())
 }
 
 func TestApi_StopTracker(t *testing.T) {

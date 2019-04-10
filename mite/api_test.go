@@ -55,6 +55,10 @@ func (r *Recorder) RequestBody() []byte {
 	return r.reqBody
 }
 
+func (r *Recorder) RequestBodyCanonical() string {
+	return string(canonicalJSON(r.reqBody))
+}
+
 func (r *Recorder) ResponseContentType(contentType string) *Recorder {
 	r.resHeader.Add("Content-Type", contentType)
 	return r
@@ -106,9 +110,13 @@ func (r *Recorder) Handler() http.Handler {
 	})
 }
 
-func prettifyJson(b []byte, indent string) []byte {
+func CanonicalString(s string) string {
+	return string(canonicalJSON([]byte(s)))
+}
+
+func canonicalJSON(b []byte) []byte {
 	buf := &bytes.Buffer{}
-	err := json.Indent(buf, b, "", indent)
+	err := json.Indent(buf, b, "", "  ")
 	if err != nil {
 		panic(err)
 	}

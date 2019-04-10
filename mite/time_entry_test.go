@@ -188,7 +188,7 @@ func TestApi_CreateTimeEntry(t *testing.T) {
 	assert.Equal(t, "application/json", rec.RequestContentType())
 	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
 	assert.Equal(t, testApiKey, rec.RequestMiteKey())
-	assert.Equal(t, timeEntryRequest, string(prettifyJson(rec.RequestBody(), "  ")))
+	assert.Equal(t, CanonicalString(timeEntryRequest), rec.RequestBodyCanonical())
 }
 
 func TestApi_EditTimeEntry(t *testing.T) {
@@ -219,7 +219,7 @@ func TestApi_EditTimeEntry(t *testing.T) {
 	assert.Equal(t, "application/json", rec.RequestContentType())
 	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
 	assert.Equal(t, testApiKey, rec.RequestMiteKey())
-	assert.Equal(t, timeEntryRequest, string(prettifyJson(rec.RequestBody(), "  ")))
+	assert.Equal(t, CanonicalString(timeEntryRequest), rec.RequestBodyCanonical())
 }
 
 func TestApi_DeleteTimeEntry(t *testing.T) {
