@@ -82,7 +82,8 @@ func TestApi_TimeEntries(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	timeEntries, err := api.TimeEntries(nil)
@@ -113,7 +114,8 @@ func TestApi_TimeEntries_WithQuery(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	today := domain.Today()
@@ -150,7 +152,8 @@ func TestApi_TimeEntry(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	timeEntry, err := api.TimeEntry(timeEntryObject.Id)
@@ -186,7 +189,8 @@ func TestApi_CreateTimeEntry(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	command := &domain.TimeEntryCommand{
@@ -229,7 +233,8 @@ func TestApi_EditTimeEntry(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	command := &domain.TimeEntryCommand{
@@ -239,7 +244,7 @@ func TestApi_EditTimeEntry(t *testing.T) {
 		ProjectId: timeEntryObject.ProjectId,
 		ServiceId: timeEntryObject.ServiceId,
 	}
-	err := api.EditTimeEntry(timeEntryObject.Id, command)
+	err = api.EditTimeEntry(timeEntryObject.Id, command)
 
 	// then
 	assert.Nil(t, err)
@@ -265,10 +270,11 @@ func TestApi_DeleteTimeEntry(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
-	err := api.DeleteTimeEntry(timeEntryObject.Id)
+	err = api.DeleteTimeEntry(timeEntryObject.Id)
 
 	// then
 	assert.Nil(t, err)

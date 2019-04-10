@@ -37,7 +37,10 @@ func NewApplication(fullConfigPath string) (*Application, error) {
 	}
 
 	c := config.NewConfig(fullConfigPath)
-	api := mite.NewApi(c.GetApiUrl(), c.GetApiKey(), version)
+	api, err := mite.NewApi(c.GetApiUrl(), c.GetApiKey(), version)
+	if err != nil {
+		return nil, err
+	}
 
 	if c.GetApiUrl() == "" {
 		_, _ = fmt.Fprintln(os.Stderr, "please configure your API url by executing: 'mite config api.url=<your mite api url>'")

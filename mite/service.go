@@ -22,7 +22,7 @@ func (r *serviceResponse) toService() *domain.Service {
 
 func (a *api) Services() ([]*domain.Service, error) {
 	var srs []serviceResponse
-	err := a.get("services.json", &srs)
+	err := a.get("/services.json", nil, &srs)
 	if err != nil {
 		return nil, err
 	}

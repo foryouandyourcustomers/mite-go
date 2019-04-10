@@ -45,7 +45,8 @@ func TestApi_Services(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	services, err := api.Services()

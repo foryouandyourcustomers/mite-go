@@ -73,7 +73,8 @@ func TestApi_Tracker(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	tracking, err := api.Tracker()
@@ -104,7 +105,8 @@ func TestApi_Tracker_Empty(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	tracking, err := api.Tracker()
@@ -135,7 +137,8 @@ func TestApi_StartTracker(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	tracking, stopped, err := api.StartTracker(trackingTimeEntryObject.Id)
@@ -167,7 +170,8 @@ func TestApi_StartTracker_Running(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	tracking, stopped, err := api.StartTracker(trackingTimeEntryObject.Id)
@@ -199,7 +203,8 @@ func TestApi_StopTracker(t *testing.T) {
 
 	defer srv.Close()
 
-	api := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	api, err := mite.NewApi(srv.URL, testApiKey, testClientVersion)
+	assert.Nil(t, err)
 
 	// when
 	stopped, err := api.StopTracker(stoppedTimeEntryObject.Id)
