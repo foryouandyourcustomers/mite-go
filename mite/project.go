@@ -22,7 +22,7 @@ func (r *projectResponse) toProject() *domain.Project {
 
 func (a *api) Projects() ([]*domain.Project, error) {
 	var prs []projectResponse
-	err := a.get("projects.json", &prs)
+	err := a.get("/projects.json", nil, &prs)
 	if err != nil {
 		return nil, err
 	}

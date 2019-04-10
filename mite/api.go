@@ -23,24 +23,30 @@ type Api interface {
 }
 
 type api struct {
-	base      string
-	key       string
-	userAgent string
-	client    *http.Client
+	base   *url.URL
+	key    string
+	agent  string
+	client *http.Client
 }
 
-func NewApi(base string, key string, version string) (Api, error) {
-	ua := fmt.Sprintf(userAgentTemplate, version)
-	return &api{base: base, key: key, userAgent: ua, client: &http.Client{}}, nil
+func NewApi(miteUrl string, miteKey string, clientVersion string) (Api, error) {
+	base, err := url.Parse(miteUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	userAgent := fmt.Sprintf(userAgentTemplate, clientVersion)
+
+	return &api{base: base, key: miteKey, agent: userAgent, client: &http.Client{}}, nil
 }
 
-func (a *api) get(resource string, result interface{}) error {
-	req, err := http.NewRequest(http.MethodGet, a.url(resource), nil)
+func (a *api) get(resource string, query url.Values, result interface{}) error {
+	req, err := http.NewRequest(http.MethodGet, a.encode(resource, query), nil)
 	if err != nil {
 		return err
 	}
 
-	req.Header.Add("User-Agent", a.userAgent)
+	req.Header.Add("User-Agent", a.agent)
 	req.Header.Add("X-MiteApiKey", a.key)
 
 	res, err := a.client.Do(req)
@@ -56,27 +62,19 @@ func (a *api) get(resource string, result interface{}) error {
 	return json.NewDecoder(res.Body).Decode(result)
 }
 
-func (a *api) getParametrized(resource string, values url.Values, result interface{}) error {
-	u := &url.URL{}
-	u.Path = resource
-	u.RawQuery = values.Encode()
-
-	return a.get(u.String(), result)
-}
-
 func (a *api) post(resource string, body interface{}, result interface{}) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, a.url(resource), bytes.NewBuffer(b))
+	req, err := http.NewRequest(http.MethodPost, a.encode(resource, nil), bytes.NewBuffer(b))
 	if err != nil {
 		return err
 	}
 
 	req.Header.Add("Content-Type", contentType)
-	req.Header.Add("User-Agent", a.userAgent)
+	req.Header.Add("User-Agent", a.agent)
 	req.Header.Add("X-MiteApiKey", a.key)
 
 	res, err := a.client.Do(req)
@@ -102,13 +100,13 @@ func (a *api) patch(resource string, body interface{}, result interface{}) error
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPatch, a.url(resource), bytes.NewBuffer(b))
+	req, err := http.NewRequest(http.MethodPatch, a.encode(resource, nil), bytes.NewBuffer(b))
 	if err != nil {
 		return err
 	}
 
 	req.Header.Add("Content-Type", contentType)
-	req.Header.Add("User-Agent", a.userAgent)
+	req.Header.Add("User-Agent", a.agent)
 	req.Header.Add("X-MiteApiKey", a.key)
 
 	res, err := a.client.Do(req)
@@ -129,12 +127,12 @@ func (a *api) patch(resource string, body interface{}, result interface{}) error
 }
 
 func (a *api) delete(resource string, result interface{}) error {
-	req, err := http.NewRequest(http.MethodDelete, a.url(resource), nil)
+	req, err := http.NewRequest(http.MethodDelete, a.encode(resource, nil), nil)
 	if err != nil {
 		return err
 	}
 
-	req.Header.Add("User-Agent", a.userAgent)
+	req.Header.Add("User-Agent", a.agent)
 	req.Header.Add("X-MiteApiKey", a.key)
 
 	res, err := a.client.Do(req)
@@ -154,8 +152,8 @@ func (a *api) delete(resource string, result interface{}) error {
 	return nil
 }
 
-func (a *api) url(resource string) string {
-	return fmt.Sprintf("%s/%s", a.base, resource)
+func (a *api) encode(resource string, query url.Values) string {
+	return a.base.ResolveReference(&url.URL{Path: resource, RawQuery: query.Encode()}).String()
 }
 
 func (a *api) check(res *http.Response) error {

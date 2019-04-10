@@ -45,7 +45,7 @@ func (r *trackerResponse) toStoppedTimeEntry() *domain.StoppedTimeEntry {
 
 func (a *api) Tracker() (*domain.TrackingTimeEntry, error) {
 	tr := trackerResponse{}
-	err := a.get("tracker.json", &tr)
+	err := a.get("/tracker.json", nil, &tr)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (a *api) Tracker() (*domain.TrackingTimeEntry, error) {
 
 func (a *api) StartTracker(id domain.TimeEntryId) (*domain.TrackingTimeEntry, *domain.StoppedTimeEntry, error) {
 	tr := &trackerResponse{}
-	err := a.patch(fmt.Sprintf("tracker/%s.json", id), nil, tr)
+	err := a.patch(fmt.Sprintf("/tracker/%s.json", id), nil, tr)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -65,7 +65,7 @@ func (a *api) StartTracker(id domain.TimeEntryId) (*domain.TrackingTimeEntry, *d
 
 func (a *api) StopTracker(id domain.TimeEntryId) (*domain.StoppedTimeEntry, error) {
 	tr := &trackerResponse{}
-	err := a.delete(fmt.Sprintf("tracker/%s.json", id), tr)
+	err := a.delete(fmt.Sprintf("/tracker/%s.json", id), tr)
 	if err != nil {
 		return nil, err
 	}
