@@ -9,8 +9,13 @@ import (
 	"net/url"
 )
 
-const contentType = "application/json"
-const userAgentTemplate = "mite-go/%s (+github.com/leanovate/mite-go)"
+const (
+	headerContentType        = "Content-Type"
+	headerUserAgent          = "User-Agent"
+	headerXMiteApiKey        = "X-MiteApiKey"
+	mediaTypeApplicationJson = "application/json"
+	userAgentTemplate        = "mite-go/%s (+github.com/leanovate/mite-go)"
+)
 
 type Api interface {
 	domain.AccountApi
@@ -46,8 +51,8 @@ func (a *api) get(resource string, query url.Values, result interface{}) error {
 		return err
 	}
 
-	req.Header.Add("User-Agent", a.agent)
-	req.Header.Add("X-MiteApiKey", a.key)
+	req.Header.Add(headerUserAgent, a.agent)
+	req.Header.Add(headerXMiteApiKey, a.key)
 
 	res, err := a.client.Do(req)
 	if err != nil {
@@ -73,9 +78,9 @@ func (a *api) post(resource string, body interface{}, result interface{}) error 
 		return err
 	}
 
-	req.Header.Add("Content-Type", contentType)
-	req.Header.Add("User-Agent", a.agent)
-	req.Header.Add("X-MiteApiKey", a.key)
+	req.Header.Add(headerContentType, mediaTypeApplicationJson)
+	req.Header.Add(headerUserAgent, a.agent)
+	req.Header.Add(headerXMiteApiKey, a.key)
 
 	res, err := a.client.Do(req)
 	if err != nil {
@@ -105,9 +110,9 @@ func (a *api) patch(resource string, body interface{}, result interface{}) error
 		return err
 	}
 
-	req.Header.Add("Content-Type", contentType)
-	req.Header.Add("User-Agent", a.agent)
-	req.Header.Add("X-MiteApiKey", a.key)
+	req.Header.Add(headerContentType, mediaTypeApplicationJson)
+	req.Header.Add(headerUserAgent, a.agent)
+	req.Header.Add(headerXMiteApiKey, a.key)
 
 	res, err := a.client.Do(req)
 	if err != nil {
@@ -132,8 +137,8 @@ func (a *api) delete(resource string, result interface{}) error {
 		return err
 	}
 
-	req.Header.Add("User-Agent", a.agent)
-	req.Header.Add("X-MiteApiKey", a.key)
+	req.Header.Add(headerUserAgent, a.agent)
+	req.Header.Add(headerXMiteApiKey, a.key)
 
 	res, err := a.client.Do(req)
 	if err != nil {

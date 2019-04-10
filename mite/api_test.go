@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 )
 
-const testApiKey = "f00bar"
-const testClientVersion = "vX"
-const testUserAgent = "mite-go/" + testClientVersion + " (+github.com/leanovate/mite-go)"
+const (
+	testApiKey        = "key"
+	testClientVersion = "test"
+	testUserAgent     = "mite-go/" + testClientVersion + " (+github.com/leanovate/mite-go)"
+)
 
 type recorder struct {
 	method      string
