@@ -4,7 +4,7 @@ A [mite](https://mite.yo.lk/en/) time tracking command line interface.
 
 ## Setup
 
-1. Grab a release from https://github.com/leanovate/mite/releases for your operating system and unpack it into your
+1. Grab a release from https://github.com/leanovate/mite-go/releases for your operating system and unpack it into your
 $PATH (or %PATH% on windows).
 2. Make sure that the `mite` command is executable by executing `mite version` in your shell
 3. Setup `mite` to use your API key by:
