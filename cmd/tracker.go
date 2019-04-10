@@ -5,6 +5,7 @@ import (
 	"github.com/cheynewallace/tabby"
 	"github.com/leanovate/mite-go/domain"
 	"github.com/spf13/cobra"
+	"time"
 )
 
 var (
@@ -68,7 +69,7 @@ var trackerStartCommand = &cobra.Command{
 
 		t := tabby.New()
 		t.AddHeader("id", "time", "state", "since")
-		t.AddLine(tracking.Id, tracking.Minutes, "tracking", tracking.Since)
+		t.AddLine(tracking.Id, tracking.Minutes, "tracking", tracking.Since.In(time.Local))
 		if stopped != nil {
 			t.AddLine(stopped.Id, stopped.Minutes, "stopped")
 		}
