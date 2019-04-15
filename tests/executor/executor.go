@@ -37,8 +37,9 @@ func Executor(buildDirectory string) *Config {
 	}
 }
 
-func (c *Config) Execute(args ...string) ([]byte, error) {
-	cmd := exec.Command(c.ExecFullPath, args...)
+func (c *Config) Execute(args string) ([]byte, error) {
+	subCmd := strings.Split(args, " ")
+	cmd := exec.Command(c.ExecFullPath, subCmd...)
 	cmd.Dir = c.ExecDirectory
 	return cmd.Output()
 }
