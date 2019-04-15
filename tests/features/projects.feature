@@ -41,5 +41,4 @@ Feature: projects
       id   name         notes
       --   ----         -----
       643  Open-Source  valvat, memento et all.
-
       """

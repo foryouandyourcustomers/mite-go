@@ -37,5 +37,4 @@ Feature: entries
       id        notes                 date        time  project  service
       --        -----                 ----        ----  -------  -------
       36159117  Feedback einarbeiten  2015-10-16  15m   API v2   Entwurf
-
       """

@@ -27,5 +27,4 @@ Feature: projects
       id     name                notes
       --     ----                -----
       38672  Website Konzeption
-
       """

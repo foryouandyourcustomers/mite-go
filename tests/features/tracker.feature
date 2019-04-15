@@ -22,5 +22,4 @@ Feature: tracker
       id        time  state     since
       --        ----  -----     -----
       36135321  4h7m  tracking  2015-10-15 15:05:04 +0000 UTC
-
       """
