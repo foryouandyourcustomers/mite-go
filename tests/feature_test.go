@@ -139,7 +139,7 @@ func (c *cmdTest) shouldReturnTheFollowing(arg1 string, arg2 *gherkin.DocString)
 	if err != nil {
 		return err
 	}
-	return assertEqual(arg2.Content, string(actualOutput))
+	return assertEqual(strings.TrimSpace(arg2.Content), strings.TrimSpace(string(actualOutput)))
 }
 
 func assertEqual(expected, actual string) error {
