@@ -173,7 +173,7 @@ func projectAndServiceId() (projectId, servicesId string) {
 		createServiceId = application.Conf.Get("serviceId")
 	}
 
-	return projectId, servicesId
+	return createProjectId, createServiceId
 }
 
 var entriesEditCommand = &cobra.Command{
@@ -271,7 +271,7 @@ var entriesDeleteCommand = &cobra.Command{
 	Use:   "delete",
 	Short: "deletes a time entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		entryId, err := domain.ParseTimeEntryId(editTimeEntryId)
+		entryId, err := domain.ParseTimeEntryId(deleteTimeEntryId)
 		if err != nil {
 			return err
 		}

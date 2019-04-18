@@ -1,6 +1,8 @@
 package tests_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -12,6 +14,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -54,6 +57,8 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^A local mock server is setup for the http method "([^"]*)" and path "([^"]*)" which returns:$`, c.aLocalMockServerIsSetupForTheHttpMethodAndPathWhichReturns)
 	s.Step(`^Mite is setup to connect to this mock server$`, c.miteIsSetupToConnectToThisMockServer)
 	s.Step(`^"([^"]*)" should return the following:$`, c.shouldReturnTheFollowing)
+	s.Step(`^A local mock server is setup for the http method "([^"]*)" and path "([^"]*)" which expects a body of:$`, c.aLocalMockServerIsSetupForTheHttpMethodAndPathWhichExpectsABodyOf)
+	s.Step(`^The mock server returns the following if the expectation is met:$`, c.theMockServerReturnsTheFollowingIfTheExpectationIsMet)
 }
 
 var opt = godog.Options{
@@ -61,9 +66,14 @@ var opt = godog.Options{
 	Format: "progress", // can define default values
 }
 
+type ReplyGenerator func() string
+
 type cmdTest struct {
 	executor   *executor.Config
-	mockServer *httptest.Server
+	mockServer struct {
+		Server         *httptest.Server
+		ReplyGenerator ReplyGenerator
+	}
 }
 
 func (c *cmdTest) reset(interface{}, error) {
@@ -73,8 +83,8 @@ func (c *cmdTest) reset(interface{}, error) {
 	}
 	c.executor = executor.Executor(buildDirectory)
 
-	if c.mockServer != nil {
-		c.mockServer.Close()
+	if c.mockServer.Server != nil {
+		c.mockServer.Server.Close()
 	}
 }
 
@@ -118,7 +128,7 @@ func (c *cmdTest) aLocalMockServerIsSetupForTheHttpMethodAndPathWhichReturns(arg
 		}
 	}
 	handlerFunc := http.HandlerFunc(handler)
-	c.mockServer = httptest.NewServer(handlerFunc)
+	c.mockServer.Server = httptest.NewServer(handlerFunc)
 	return nil
 }
 
@@ -127,7 +137,7 @@ func (c *cmdTest) miteIsSetupToConnectToThisMockServer() error {
 	if err != nil {
 		return err
 	}
-	err = c.iExecute(fmt.Sprintf("-c .mite.toml config api.url=%s", c.mockServer.URL))
+	err = c.iExecute(fmt.Sprintf("-c .mite.toml config api.url=%s", c.mockServer.Server.URL))
 	if err != nil {
 		return err
 	}
@@ -142,9 +152,74 @@ func (c *cmdTest) shouldReturnTheFollowing(arg1 string, arg2 *gherkin.DocString)
 	return assertEqual(strings.TrimSpace(arg2.Content), strings.TrimSpace(string(actualOutput)))
 }
 
+func (c *cmdTest) aLocalMockServerIsSetupForTheHttpMethodAndPathWhichExpectsABodyOf(method, path string, expectedBody *gherkin.DocString) error {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != method {
+			w.WriteHeader(400)
+			return
+		}
+		if r.URL.Path != path {
+			w.WriteHeader(400)
+			return
+		}
+		buf := new(bytes.Buffer)
+		_, err := buf.ReadFrom(r.Body)
+		if err != nil {
+			w.WriteHeader(400)
+			return
+		}
+		body := buf.String()
+		err = assertEqualJson(strings.TrimSpace(body), strings.TrimSpace(expectedBody.Content))
+		if err != nil {
+			w.WriteHeader(400)
+			return
+		}
+
+		w.WriteHeader(200)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		replyBody := c.mockServer.ReplyGenerator()
+		_, err = w.Write([]byte(replyBody))
+		if err != nil {
+			panic(err)
+		}
+	}
+	handlerFunc := http.HandlerFunc(handler)
+	c.mockServer.Server = httptest.NewServer(handlerFunc)
+	return nil
+}
+
+func (c *cmdTest) theMockServerReturnsTheFollowingIfTheExpectationIsMet(replyBody *gherkin.DocString) error {
+	c.mockServer.ReplyGenerator = func() string {
+		return replyBody.Content
+	}
+
+	return nil
+}
+
 func assertEqual(expected, actual string) error {
 	if strings.Compare(expected, actual) != 0 {
 		return errors.New(fmt.Sprintf("expected: \n%s\n to equal: \n%s", expected, actual))
 	}
+	return nil
+}
+
+func assertEqualJson(s1, s2 string) error {
+	var o1 interface{}
+	var o2 interface{}
+
+	var err error
+	err = json.Unmarshal([]byte(s1), &o1)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(s2), &o2)
+	if err != nil {
+		return err
+	}
+
+	if !reflect.DeepEqual(o1, o2) {
+		return errors.New("json not deep equal")
+	}
+
 	return nil
 }
