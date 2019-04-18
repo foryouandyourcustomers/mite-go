@@ -2,6 +2,10 @@
 
 A [mite](https://mite.yo.lk/en/) time tracking command line interface.
 
+## Status
+
+[![Build Status](https://travis-ci.org/leanovate/mite-go.svg?branch=master)](https://travis-ci.org/leanovate/mite-go)
+
 ## Setup
 
 1. Grab a release from https://github.com/leanovate/mite-go/releases for your operating system and unpack it into your
