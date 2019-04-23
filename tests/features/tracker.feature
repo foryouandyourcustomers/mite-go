@@ -17,9 +17,10 @@ Feature: tracker
       }
       """
     And Mite is setup to connect to this mock server
+    When I execute "-c .mite.toml config display.location=Europe/Berlin"
     Then "-c .mite.toml tracker status" should return the following:
       """
       id        time  state     since
       --        ----  -----     -----
-      36135321  4h7m  tracking  2015-10-15 15:05:04 +0000 UTC
+      36135321  4h7m  tracking  2015-10-15 17:05:04 +0200 CEST
       """
