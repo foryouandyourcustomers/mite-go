@@ -38,7 +38,7 @@ func createConfigFileIfNonExistent(ffp string) {
 	if _, err := os.Stat(ffp); os.IsNotExist(err) {
 		_, err := os.Create(ffp)
 		if err != nil {
-			panic(fmt.Sprintf("config file does not exists and wasn't able to create it: %s\n", err))
+			panic(fmt.Sprintf("could not create config file: %s\n", err))
 		}
 	}
 }
