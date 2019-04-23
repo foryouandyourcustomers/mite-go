@@ -19,3 +19,7 @@ Feature: config
     Given an empty config file called ".mite.toml"
     When I execute "-c .mite.toml config serviceId=54321"
     Then "-c .mite.toml config serviceId" should return "54321"
+  Scenario: Write & read display location
+    Given an empty config file called ".mite.toml"
+    When I execute "-c .mite.toml config display.location=UTC"
+    Then "-c .mite.toml config display.location" should return "UTC"

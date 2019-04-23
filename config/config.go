@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
+	"time"
 )
 
 type Config interface {
 	GetApiUrl() string
 	GetApiKey() string
 	GetActivity(activity string) Activity
+	GetDisplayLocation() *time.Location
 	Get(key string) string
 	Set(key string, value string)
 	PrintAll()
@@ -56,6 +58,20 @@ func (c *config) GetActivity(activity string) Activity {
 		ProjectId: projectId,
 		ServiceId: serviceId,
 	}
+}
+
+func (c *config) GetDisplayLocation() *time.Location {
+	s := c.Get("display.location")
+	if s == "" {
+		return time.Local
+	}
+
+	loc, err := time.LoadLocation(s)
+	if err != nil {
+		return time.Local
+	}
+
+	return loc
 }
 
 func (c *config) Get(key string) string {
