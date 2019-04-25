@@ -12,10 +12,6 @@ type LocalDate struct {
 	time time.Time
 }
 
-func (d *LocalDate) Before(b LocalDate) bool {
-	return d.time.Before(b.time)
-}
-
 func NewLocalDate(t time.Time) LocalDate {
 	return LocalDate{time: t}
 }
@@ -41,6 +37,10 @@ func (d LocalDate) Add(years int, months int, days int) LocalDate {
 	return LocalDate{time: d.time.AddDate(years, months, days)}
 }
 
+func (d LocalDate) Before(b LocalDate) bool {
+	return d.time.Before(b.time)
+}
+
 func (d LocalDate) String() string {
 	return d.time.Format(ISO8601)
 }
@@ -54,7 +54,7 @@ func NewMinutes(minutes int) Minutes {
 }
 
 func NewMinutesFromHours(hours int) Minutes {
-	return Minutes{duration: time.Duration(hours*60) * time.Minute}
+	return Minutes{duration: time.Duration(hours) * time.Hour}
 }
 
 func ParseMinutes(s string) (Minutes, error) {
