@@ -52,9 +52,14 @@ var vacationDetailCommand = &cobra.Command{
 			return errors.New(textProjectOrServiceNotConfigured)
 		}
 
+		serviceId, err := strconv.Atoi(vacationActivity.ServiceId)
+		if err != nil {
+			return errors.New(textProjectOrServiceNotConfigured)
+		}
+
 		entries, err := application.MiteApi.TimeEntries(&domain.TimeEntryQuery{
 			At:        entryListFilterAtThisYear,
-			ServiceId: 285835, // => user config, if not set explain how
+			ServiceId: domain.NewServiceId(serviceId),
 		})
 		if err != nil {
 			return err
