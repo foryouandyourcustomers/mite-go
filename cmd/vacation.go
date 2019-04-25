@@ -12,7 +12,7 @@ const (
 	fullVacationDayDuration           = 8
 	halfVacationDayDuration           = fullVacationDayDuration / 2
 	entryListFilterAtThisYear         = "this_year"
-	textProjectOrServiceNotConfigured = "please set both the vacation project AND service id (either via arguments or config)"
+	textProjectOrServiceNotConfigured = "please set your vacation configuration for project id, service id AND vacation days (either via arguments or config)"
 )
 
 var (
@@ -46,13 +46,13 @@ var vacationDetailCommand = &cobra.Command{
 	Use:   "details",
 	Short: "show vacation statistics",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		vacationActivity := application.Conf.GetVacation()
+		vacation := application.Conf.GetVacation()
 
-		if vacationActivity.ServiceId == "" {
+		if vacation.ServiceId == "" {
 			return errors.New(textProjectOrServiceNotConfigured)
 		}
 
-		serviceId, err := strconv.Atoi(vacationActivity.ServiceId)
+		serviceId, err := strconv.Atoi(vacation.ServiceId)
 		if err != nil {
 			return errors.New(textProjectOrServiceNotConfigured)
 		}
@@ -79,21 +79,30 @@ var vacationDetailCommand = &cobra.Command{
 			}
 		}
 
+		if vacation.Days == "" {
+			return errors.New(textProjectOrServiceNotConfigured)
+		}
+		vacationDays, err := strconv.ParseFloat(vacation.Days, 64)
+		if err != nil {
+			return errors.New(textProjectOrServiceNotConfigured)
+		}
+
 		var daysInYear = domain.MinutesAsDays(minutesInYear, fullVacationDayDuration)
-		var daysInPast = domain.MinutesAsDays(minutesInPast, fullVacationDayDuration)
-		var daysInFuture = domain.MinutesAsDays(minutesInFuture, fullVacationDayDuration)
-		var daysUnplanned = 28 - daysInYear // => user config, if not set explain how
+		var daysUnplanned = vacationDays - daysInYear // => user config, if not set explain how
 
 		if vacationDetailsverbose {
+			var daysInPast = domain.MinutesAsDays(minutesInPast, fullVacationDayDuration)
+			var daysInFuture = domain.MinutesAsDays(minutesInFuture, fullVacationDayDuration)
+
 			fmt.Printf("Vacation statistics of %d:\n"+
-				" - total:     %d days\n"+
+				" - total:     %s days\n"+
 				"---------------------\n"+
 				" - booked:    %.1f days\n"+
 				" - taken:     %.1f days\n"+
 				" - planned:   %.1f days\n"+
 				" - unplanned: %.1f days\n",
 				domain.ThisYear(),
-				28,
+				vacation.Days,
 				daysInYear,
 				daysInPast,
 				daysInFuture,
@@ -115,18 +124,18 @@ var vacationCreateCommand = &cobra.Command{
 	Use:   "create",
 	Short: "creates a vacation entry (WIP: currently this command creates a vacation day only for today)",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		vacationActivity := application.Conf.GetVacation()
+		vacation := application.Conf.GetVacation()
 
-		if vacationActivity.ProjectId == "" || vacationActivity.ServiceId == "" {
+		if vacation.ProjectId == "" || vacation.ServiceId == "" {
 			return errors.New(textProjectOrServiceNotConfigured)
 		}
 
-		projectId, err := strconv.Atoi(vacationActivity.ProjectId)
+		projectId, err := strconv.Atoi(vacation.ProjectId)
 		if err != nil {
 			return errors.New(textProjectOrServiceNotConfigured)
 		}
 
-		serviceId, err := strconv.Atoi(vacationActivity.ServiceId)
+		serviceId, err := strconv.Atoi(vacation.ServiceId)
 		if err != nil {
 			return errors.New(textProjectOrServiceNotConfigured)
 		}

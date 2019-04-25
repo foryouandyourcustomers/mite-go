@@ -24,9 +24,10 @@ $PATH (or %PATH% on windows).
    2. run `mite config activity."your activity name here".projectId="the project id"`
    3. run `mite config activity."your activity name here".serviceId=<the service id"`
    4. the activity names can be used in the `entries create` and `entries edit` sub-commands
-6. Optional: set a project & service for your vacation tracking by:
+6. Optional: configure your vacation tracking by:
    1. retrieving the desired project & service id by executing `mite projects` and `mite services` respectively
    2. configuring those id's as default by executing `mite config vacation.projectId="the project id"` and `mite config vacation.serviceId="the service id"`
+   3. configuring your available vacation days per year `mite config vacation.days="vacation days per year"`
 
 # Usage
 

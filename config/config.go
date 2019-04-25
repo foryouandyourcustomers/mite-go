@@ -13,7 +13,7 @@ type Config interface {
 	GetApiKey() string
 	GetActivity(activity string) Activity
 	GetDisplayLocation() *time.Location
-	GetVacation() Activity
+	GetVacation() Vacation
 	Get(key string) string
 	Set(key string, value string)
 	PrintAll()
@@ -26,6 +26,12 @@ type config struct {
 type Activity struct {
 	ProjectId string
 	ServiceId string
+}
+
+type Vacation struct {
+	ProjectId string
+	ServiceId string
+	Days      string
 }
 
 func NewConfig(fullPath string) Config {
@@ -61,12 +67,14 @@ func (c *config) GetActivity(activity string) Activity {
 	}
 }
 
-func (c *config) GetVacation() Activity {
+func (c *config) GetVacation() Vacation {
 	projectId := c.Get("vacation.projectId")
 	serviceId := c.Get("vacation.serviceId")
-	return Activity{
+	days := c.Get("vacation.days")
+	return Vacation{
 		ProjectId: projectId,
 		ServiceId: serviceId,
+		Days:      days,
 	}
 }
 
