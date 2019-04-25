@@ -12,12 +12,20 @@ type LocalDate struct {
 	time time.Time
 }
 
+func (d *LocalDate) Before(b LocalDate) bool {
+	return d.time.Before(b.time)
+}
+
 func NewLocalDate(t time.Time) LocalDate {
 	return LocalDate{time: t}
 }
 
 func Today() LocalDate {
 	return NewLocalDate(time.Now().Local())
+}
+
+func ThisYear() int {
+	return time.Now().Year()
 }
 
 func ParseLocalDate(s string) (LocalDate, error) {
@@ -41,8 +49,12 @@ type Minutes struct {
 	duration time.Duration
 }
 
-func NewMinutes(i int) Minutes {
-	return Minutes{duration: time.Duration(i) * time.Minute}
+func NewMinutes(minutes int) Minutes {
+	return Minutes{duration: time.Duration(minutes) * time.Minute}
+}
+
+func NewMinutesFromHours(hours int) Minutes {
+	return Minutes{duration: time.Duration(hours*60) * time.Minute}
 }
 
 func ParseMinutes(s string) (Minutes, error) {
@@ -60,4 +72,8 @@ func (m Minutes) Value() int {
 
 func (m Minutes) String() string {
 	return strings.TrimSuffix(m.duration.String(), "0s")
+}
+
+func MinutesAsDays(minutes int, workingDayInHours float64) float64 {
+	return float64(minutes) / 60 / workingDayInHours
 }

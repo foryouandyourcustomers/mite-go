@@ -109,9 +109,11 @@ func TestApi_TimeEntries_WithQuery(t *testing.T) {
 	// when
 	today := domain.Today()
 	query := &domain.TimeEntryQuery{
+		At:        "this_year",
 		From:      &today,
 		To:        &today,
 		Direction: "asc",
+		ServiceId: timeEntryObject.ServiceId,
 	}
 	timeEntries, err := api.TimeEntries(query)
 
@@ -120,7 +122,10 @@ func TestApi_TimeEntries_WithQuery(t *testing.T) {
 	assert.Equal(t, []*domain.TimeEntry{&timeEntryObject}, timeEntries)
 
 	assert.Equal(t, http.MethodGet, rec.RequestMethod())
-	assert.Equal(t, fmt.Sprintf("/time_entries.json?direction=%s&from=%s&to=%s", query.Direction, query.From, query.To), rec.RequestURI())
+	assert.Equal(t, fmt.Sprintf(
+		"/time_entries.json?at=%s&direction=%s&from=%s&service_id=%s&to=%s",
+		query.At, query.Direction, query.From, query.ServiceId, query.To),
+		rec.RequestURI())
 	assert.Empty(t, rec.RequestContentType())
 	assert.Equal(t, testUserAgent, rec.RequestUserAgent())
 	assert.Equal(t, testApiKey, rec.RequestMiteKey())

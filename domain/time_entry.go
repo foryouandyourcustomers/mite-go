@@ -56,9 +56,11 @@ type TimeEntryCommand struct {
 }
 
 type TimeEntryQuery struct {
+	At        string
 	From      *LocalDate
 	To        *LocalDate
 	Direction string
+	ServiceId ServiceId
 }
 
 type TimeEntryApi interface {

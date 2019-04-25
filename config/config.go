@@ -13,6 +13,7 @@ type Config interface {
 	GetApiKey() string
 	GetActivity(activity string) Activity
 	GetDisplayLocation() *time.Location
+	GetVacation() Activity
 	Get(key string) string
 	Set(key string, value string)
 	PrintAll()
@@ -54,6 +55,15 @@ func (c *config) GetApiKey() string {
 func (c *config) GetActivity(activity string) Activity {
 	projectId := c.Get(fmt.Sprintf("activity.%s.projectId", activity))
 	serviceId := c.Get(fmt.Sprintf("activity.%s.serviceId", activity))
+	return Activity{
+		ProjectId: projectId,
+		ServiceId: serviceId,
+	}
+}
+
+func (c *config) GetVacation() Activity {
+	projectId := c.Get("vacation.projectId")
+	serviceId := c.Get("vacation.serviceId")
 	return Activity{
 		ProjectId: projectId,
 		ServiceId: serviceId,

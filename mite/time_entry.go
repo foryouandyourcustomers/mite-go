@@ -27,6 +27,9 @@ func fromCommand(c *domain.TimeEntryCommand) *timeEntryRequest {
 func fromQuery(q *domain.TimeEntryQuery) url.Values {
 	v := url.Values{}
 	if q != nil {
+		if q.At != "" {
+			v.Add("at", q.At)
+		}
 		if q.From != nil {
 			v.Add("from", q.From.String())
 		}
@@ -35,6 +38,9 @@ func fromQuery(q *domain.TimeEntryQuery) url.Values {
 		}
 		if q.Direction != "" {
 			v.Add("direction", q.Direction)
+		}
+		if q.ServiceId != 0 {
+			v.Add("service_id", q.ServiceId.String())
 		}
 	}
 
