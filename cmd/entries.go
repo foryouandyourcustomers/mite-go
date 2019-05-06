@@ -185,19 +185,7 @@ var entriesEditCommand = &cobra.Command{
 			return err
 		}
 
-		entry, err := application.MiteApi.TimeEntry(entryId)
-		if err != nil {
-			return err
-		}
-
-		// use retrieved values as defaults
-		command := domain.TimeEntryCommand{
-			Date:      &entry.Date,
-			Minutes:   &entry.Minutes,
-			Note:      entry.Note,
-			ProjectId: entry.ProjectId,
-			ServiceId: entry.ServiceId,
-		}
+		command := domain.TimeEntryCommand{}
 
 		// override only fields affected by set parameters of edit
 		if editDate != "" {
@@ -257,7 +245,7 @@ var entriesEditCommand = &cobra.Command{
 			return err
 		}
 
-		entry, err = application.MiteApi.TimeEntry(entryId)
+		entry, err := application.MiteApi.TimeEntry(entryId)
 		if err != nil {
 			return err
 		}
