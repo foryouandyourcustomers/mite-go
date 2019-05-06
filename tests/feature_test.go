@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -41,7 +42,8 @@ func TestMain(m *testing.M) {
 
 func FeatureContext(s *godog.Suite) {
 	c := cmdTest{
-		executor: executor.Executor(buildDirectory),
+		executor:   executor.Executor(buildDirectory),
+		mockServer: &MockServer{},
 	}
 
 	s.AfterScenario(c.reset)
@@ -68,12 +70,13 @@ var opt = godog.Options{
 
 type cmdTest struct {
 	executor   *executor.Config
-	mockServer MockServer
+	mockServer *MockServer
 }
 
 type MockServer struct {
-	Server   *httptest.Server
-	Handlers []*MockHandler
+	Server             *httptest.Server
+	CurrentMockHandler int
+	Handlers           []*MockHandler
 }
 
 type ReplyGenerator func() string
@@ -95,6 +98,8 @@ func (c *cmdTest) reset(interface{}, error) {
 	if c.mockServer.Server != nil {
 		c.mockServer.Server.Close()
 	}
+
+	c.mockServer = &MockServer{}
 }
 
 func (c *cmdTest) anEmptyConfigFileCalled(arg1 string) error {
@@ -156,8 +161,14 @@ func (c *cmdTest) miteIsSetupToConnectToThisMockServer() error {
 func (c *cmdTest) shouldReturnTheFollowing(arg1 string, arg2 *gherkin.DocString) error {
 	actualOutput, err := c.executor.Execute(arg1)
 	if err != nil {
+		exitErr, ok := err.(*exec.ExitError)
+		if ok {
+			verboseCmdError := fmt.Sprintf("%s\n%s", exitErr.String(), exitErr.Stderr)
+			return errors.New(verboseCmdError)
+		}
 		return err
 	}
+
 	return assertEqual(strings.TrimSpace(arg2.Content), strings.TrimSpace(string(actualOutput)))
 }
 
@@ -180,11 +191,21 @@ func (c *cmdTest) aLocalMockServerIsSetupForTheHttpMethodAndPathWhichExpectsABod
 			panic(err)
 		}
 		body := buf.String()
-		mockHandler := c.mockServer.getMockHandlerFor(r.Method, r.URL.Path, strings.TrimSpace(body))
+		mockHandler := c.mockServer.nextMockHandler()
 		if mockHandler == nil {
 			w.WriteHeader(400)
 			return
 		}
+		err = assertEqual(mockHandler.ExpectedMethod, r.Method)
+		if err != nil {
+			panic(err)
+		}
+
+		err = assertEqual(mockHandler.ExpectedPath, r.URL.Path)
+		if err != nil {
+			panic(err)
+		}
+
 		err = assertEqualJson(strings.TrimSpace(body), mockHandler.ExpectedBody)
 		if err != nil {
 			panic(err)
@@ -204,15 +225,14 @@ func (c *cmdTest) aLocalMockServerIsSetupForTheHttpMethodAndPathWhichExpectsABod
 	return nil
 }
 
-func (ms MockServer) getMockHandlerFor(method, path, expectedBody string) *MockHandler {
-	for _, handler := range ms.Handlers {
-		if handler.ExpectedMethod == method &&
-			handler.ExpectedPath == path &&
-			isEqualJson(handler.ExpectedBody, expectedBody) {
-			return handler
-		}
+func (ms *MockServer) nextMockHandler() *MockHandler {
+	if len(ms.Handlers)-1 < ms.CurrentMockHandler {
+		return nil
 	}
-	return nil
+
+	handler := ms.Handlers[ms.CurrentMockHandler]
+	ms.CurrentMockHandler++
+	return handler
 }
 
 func (c *cmdTest) theMockServerReturnsTheFollowingIfTheExpectationIsMet(replyBody *gherkin.DocString) error {
@@ -253,28 +273,4 @@ func assertEqualJson(s1, s2 string) error {
 	}
 
 	return nil
-}
-
-func isEqualJson(s1, s2 string) bool {
-	var o1 interface{}
-	var o2 interface{}
-
-	if len(s1) == 0 && len(s2) == 0 {
-		return true
-	}
-
-	err := json.Unmarshal([]byte(s1), &o1)
-	if err != nil {
-		return false
-	}
-	err = json.Unmarshal([]byte(s2), &o2)
-	if err != nil {
-		return false
-	}
-
-	if !reflect.DeepEqual(o1, o2) {
-		return false
-	}
-
-	return true
 }
