@@ -66,14 +66,23 @@ var opt = godog.Options{
 	Format: "progress", // can define default values
 }
 
-type ReplyGenerator func() string
-
 type cmdTest struct {
 	executor   *executor.Config
-	mockServer struct {
-		Server         *httptest.Server
-		ReplyGenerator ReplyGenerator
-	}
+	mockServer MockServer
+}
+
+type MockServer struct {
+	Server   *httptest.Server
+	Handlers []*MockHandler
+}
+
+type ReplyGenerator func() string
+
+type MockHandler struct {
+	ExpectedPath   string
+	ExpectedMethod string
+	ExpectedBody   string
+	ReplyGenerator ReplyGenerator
 }
 
 func (c *cmdTest) reset(interface{}, error) {
@@ -153,43 +162,61 @@ func (c *cmdTest) shouldReturnTheFollowing(arg1 string, arg2 *gherkin.DocString)
 }
 
 func (c *cmdTest) aLocalMockServerIsSetupForTheHttpMethodAndPathWhichExpectsABodyOf(method, path string, expectedBody *gherkin.DocString) error {
+	mockHandler := MockHandler{
+		ExpectedPath:   path,
+		ExpectedMethod: method,
+		ExpectedBody:   strings.TrimSpace(expectedBody.Content),
+		ReplyGenerator: func() string {
+			return ""
+		},
+	}
+
+	c.mockServer.Handlers = append(c.mockServer.Handlers, &mockHandler)
+
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != method {
-			w.WriteHeader(400)
-			return
-		}
-		if r.URL.Path != path {
-			w.WriteHeader(400)
-			return
-		}
 		buf := new(bytes.Buffer)
 		_, err := buf.ReadFrom(r.Body)
 		if err != nil {
+			panic(err)
+		}
+		body := buf.String()
+		mockHandler := c.mockServer.getMockHandlerFor(r.Method, r.URL.Path, strings.TrimSpace(body))
+		if mockHandler == nil {
 			w.WriteHeader(400)
 			return
 		}
-		body := buf.String()
-		err = assertEqualJson(strings.TrimSpace(body), strings.TrimSpace(expectedBody.Content))
+		err = assertEqualJson(strings.TrimSpace(body), mockHandler.ExpectedBody)
 		if err != nil {
-			w.WriteHeader(400)
-			return
+			panic(err)
 		}
 
 		w.WriteHeader(200)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		replyBody := c.mockServer.ReplyGenerator()
+		replyBody := mockHandler.ReplyGenerator()
 		_, err = w.Write([]byte(replyBody))
 		if err != nil {
 			panic(err)
 		}
 	}
+
 	handlerFunc := http.HandlerFunc(handler)
 	c.mockServer.Server = httptest.NewServer(handlerFunc)
 	return nil
 }
 
+func (ms MockServer) getMockHandlerFor(method, path, expectedBody string) *MockHandler {
+	for _, handler := range ms.Handlers {
+		if handler.ExpectedMethod == method &&
+			handler.ExpectedPath == path &&
+			isEqualJson(handler.ExpectedBody, expectedBody) {
+			return handler
+		}
+	}
+	return nil
+}
+
 func (c *cmdTest) theMockServerReturnsTheFollowingIfTheExpectationIsMet(replyBody *gherkin.DocString) error {
-	c.mockServer.ReplyGenerator = func() string {
+	c.mockServer.Handlers[len(c.mockServer.Handlers)-1].ReplyGenerator = func() string {
 		return replyBody.Content
 	}
 
@@ -207,6 +234,10 @@ func assertEqualJson(s1, s2 string) error {
 	var o1 interface{}
 	var o2 interface{}
 
+	if len(s1) == 0 && len(s2) == 0 {
+		return nil
+	}
+
 	var err error
 	err = json.Unmarshal([]byte(s1), &o1)
 	if err != nil {
@@ -222,4 +253,28 @@ func assertEqualJson(s1, s2 string) error {
 	}
 
 	return nil
+}
+
+func isEqualJson(s1, s2 string) bool {
+	var o1 interface{}
+	var o2 interface{}
+
+	if len(s1) == 0 && len(s2) == 0 {
+		return true
+	}
+
+	err := json.Unmarshal([]byte(s1), &o1)
+	if err != nil {
+		return false
+	}
+	err = json.Unmarshal([]byte(s2), &o2)
+	if err != nil {
+		return false
+	}
+
+	if !reflect.DeepEqual(o1, o2) {
+		return false
+	}
+
+	return true
 }
