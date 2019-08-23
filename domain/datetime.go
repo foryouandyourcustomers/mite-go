@@ -41,6 +41,10 @@ func (d LocalDate) Before(b LocalDate) bool {
 	return d.time.Before(b.time)
 }
 
+func (d LocalDate) Unix() int64 {
+  return d.time.Unix()
+}
+
 func (d LocalDate) String() string {
 	return d.time.Format(ISO8601)
 }
