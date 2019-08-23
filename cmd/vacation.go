@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	vacationDetailsverbose   bool
+	vacationDetailsVerbose   bool
 	vacationNote             string
 	vacationHalfDay          bool
 	vacationFrom             string
@@ -26,7 +26,7 @@ var (
 )
 
 func init() {
-	vacationDetailCommand.Flags().BoolVarP(&vacationDetailsverbose, "verbose", "v", false, "verbose output")
+	vacationDetailCommand.Flags().BoolVarP(&vacationDetailsVerbose, "verbose", "v", false, "verbose output")
 	vacationCommand.AddCommand(vacationDetailCommand)
 
 	vacationCreateCommand.Flags().StringVarP(&vacationNote,  "note",    "n", "",    "A note describing your vacation")
@@ -95,7 +95,7 @@ var vacationDetailCommand = &cobra.Command{
 		var daysInYear = domain.MinutesAsDays(minutesInYear, fullVacationDayDuration)
 		var daysUnplanned = vacationDays - daysInYear // => user config, if not set explain how
 
-		if vacationDetailsverbose {
+		if vacationDetailsVerbose {
 			var daysInPast = domain.MinutesAsDays(minutesInPast, fullVacationDayDuration)
 			var daysInFuture = domain.MinutesAsDays(minutesInFuture, fullVacationDayDuration)
 
