@@ -13,6 +13,7 @@ const (
 	halfVacationDayDuration           = fullVacationDayDuration / 2
 	entryListFilterAtThisYear         = "this_year"
 	textProjectOrServiceNotConfigured = "please set your vacation configuration for project id, service id AND vacation days (either via arguments or config)"
+	textDateFormatNotCorrect          = "format for date is not correct, expected YYYY-MM-DD, e.g. 2020-03-21"
 )
 
 var (
@@ -20,17 +21,17 @@ var (
 	vacationNote           string
 	vacationHalfDay        bool
 	vacationFrom           string
-	vacationTo             string
+	vacationAmount         int
 )
 
 func init() {
 	vacationDetailCommand.Flags().BoolVarP(&vacationDetailsverbose, "verbose", "v", false, "verbose output")
 	vacationCommand.AddCommand(vacationDetailCommand)
 
-	vacationCreateCommand.Flags().StringVarP(&vacationNote, "note", "n", "", "a note describing your vacation")
+	vacationCreateCommand.Flags().StringVarP(&vacationNote,  "note",    "n", "",    "A note describing your vacation")
 	vacationCreateCommand.Flags().BoolVarP(&vacationHalfDay, "halfday", "d", false, "If set vacation is entered as half a day")
-	vacationCreateCommand.Flags().StringVarP(&vacationFrom, "from", "f", "", "create vacation starting at date (in YYYY-MM-DD format)")
-	vacationCreateCommand.Flags().StringVarP(&vacationTo, "to", "t", "", "create vacation ending at date (in YYYY-MM-DD format)")
+	vacationCreateCommand.Flags().StringVarP(&vacationFrom,  "from",    "f", "",    "Create vacation starting at date (in YYYY-MM-DD format) [Default: today]")
+	vacationCreateCommand.Flags().IntVarP(&vacationAmount,   "amount",  "a", 1,     "Create amount of consecutive vacation days beginning at from date [Default: 1]")
 	vacationCommand.AddCommand(vacationCreateCommand)
 
 	rootCmd.AddCommand(vacationCommand)
@@ -122,7 +123,7 @@ var vacationDetailCommand = &cobra.Command{
 
 var vacationCreateCommand = &cobra.Command{
 	Use:   "create",
-	Short: "creates a vacation entry (WIP: currently this command creates a vacation day only for today)",
+	Short: "creates a vacation entry",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		vacation := application.Conf.GetVacation()
 
@@ -142,19 +143,25 @@ var vacationCreateCommand = &cobra.Command{
 
 		projectIdForVacation := domain.NewProjectId(projectId)
 		serviceIdForVacation := domain.NewServiceId(serviceId)
-		today := domain.Today()
 
+        fromDay := domain.Today()            
+        if vacationFrom != "" {
+          fromDay, err = domain.ParseLocalDate(vacationFrom)
+          if err != nil {
+              return errors.New(textDateFormatNotCorrect)
+          }
+        }
+      
 		minutes := domain.NewMinutesFromHours(fullVacationDayDuration)
 		if vacationHalfDay {
 			minutes = domain.NewMinutesFromHours(halfVacationDayDuration)
 		}
 
-		var dates []domain.LocalDate
-		dates = append(dates, today)
-
-		for _, date := range dates {
-			timeEntry := domain.TimeEntryCommand{
-				Date:      &date,
+        for i := 0; i < vacationAmount; i++ {
+            atDate := fromDay.Add(0, 0, i)
+			
+            timeEntry := domain.TimeEntryCommand{
+				Date:      &atDate,
 				Minutes:   &minutes,
 				Note:      vacationNote,
 				ProjectId: projectIdForVacation,
@@ -165,8 +172,8 @@ var vacationCreateCommand = &cobra.Command{
 			if err != nil {
 				return err
 			}
-		}
+        }
 
-		return nil
+        return nil
 	},
 }
