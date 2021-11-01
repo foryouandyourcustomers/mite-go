@@ -2,6 +2,12 @@ package domain
 
 import "strconv"
 
+const (
+	currentUserId     = -1
+	currentUserString = "current"
+)
+const CurrentUser = UserId(currentUserId)
+
 type UserId int
 
 func NewUserId(i int) UserId {
@@ -9,6 +15,10 @@ func NewUserId(i int) UserId {
 }
 
 func ParseUserId(s string) (UserId, error) {
+	if s == currentUserString {
+		return CurrentUser, nil
+	}
+
 	i, err := strconv.Atoi(s)
 	if err != nil {
 		return 0, err
@@ -18,6 +28,9 @@ func ParseUserId(s string) (UserId, error) {
 }
 
 func (i UserId) String() string {
+	if i == currentUserId {
+		return currentUserString
+	}
 	return strconv.Itoa(int(i))
 }
 
