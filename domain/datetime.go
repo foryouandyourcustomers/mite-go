@@ -6,7 +6,17 @@ import (
 	"time"
 )
 
-const ISO8601 = "2006-01-02"
+const (
+	ISO8601       = "2006-01-02"
+	AT_TODAY      = "today"
+	AT_YESTERDAY  = "yesterday"
+	AT_THIS_WEEK  = "this_week"
+	AT_THIS_MONTH = "this_month"
+	AT_THIS_YEAR  = "this_year"
+	AT_LAST_WEEK  = "last_week"
+	AT_LAST_MONTH = "last_month"
+	AT_LAST_YEAR  = "last_year"
+)
 
 type LocalDate struct {
 	time time.Time

@@ -42,8 +42,11 @@ func fromQuery(q *domain.TimeEntryQuery) url.Values {
 		if q.ServiceId != 0 {
 			v.Add("service_id", q.ServiceId.String())
 		}
-		if q.UserId == domain.CurrentUser {
+		if q.UserId.String() != "" {
 			v.Add("user_id", q.UserId.String())
+		}
+		if q.Sort != "" {
+			v.Add("sort", q.Sort)
 		}
 	}
 

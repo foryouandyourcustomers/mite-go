@@ -5,6 +5,19 @@ import (
 	"time"
 )
 
+const (
+	SORT_BY_USER     = "user"
+	SORT_BY_CUSTOMER = "customer"
+	SORT_BY_PROJECT  = "project"
+	SORT_BY_SERVICE  = "service"
+	SORT_BY_NOTE     = "note"
+	SORT_BY_TIME     = "minutes"
+	SORT_BY_REVENUE  = "revenue"
+
+	SORT_DIRECTION_ASC  = "asc"
+	SORT_DIRECTION_DESC = "dsc"
+)
+
 type TimeEntryId int
 
 func NewTimeEntryId(i int) TimeEntryId {
@@ -63,6 +76,7 @@ type TimeEntryQuery struct {
 	ServiceId  ServiceId
 	UserId     UserId
 	CustomerId CustomerId
+	Sort       string
 }
 
 type TimeEntryApi interface {
