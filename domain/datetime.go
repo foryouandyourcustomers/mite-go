@@ -42,11 +42,23 @@ func (d LocalDate) Before(b LocalDate) bool {
 }
 
 func (d LocalDate) Unix() int64 {
-  return d.time.Unix()
+	return d.time.Unix()
 }
 
 func (d LocalDate) String() string {
 	return d.time.Format(ISO8601)
+}
+
+func (d LocalDate) Month() string {
+	return d.time.Month().String()
+}
+
+func (d LocalDate) Day() int {
+	return d.time.Day()
+}
+
+func (d LocalDate) Year() int {
+	return d.time.Year()
 }
 
 type Minutes struct {
