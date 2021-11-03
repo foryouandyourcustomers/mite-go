@@ -47,6 +47,10 @@ func (d LocalDate) Add(years int, months int, days int) LocalDate {
 	return LocalDate{time: d.time.AddDate(years, months, days)}
 }
 
+func (d LocalDate) AddDuration(duration time.Duration) LocalDate {
+	return LocalDate{time: d.time.Add(duration)}
+}
+
 func (d LocalDate) Before(b LocalDate) bool {
 	return d.time.Before(b.time)
 }
